@@ -12,7 +12,7 @@ bool ExtractSingleModel(std::string& fname)
     char * ext = GetExtension(name);
 
     // < 3.1.0 ADT MMDX section store filename.mdx filenames for corresponded .m2 file
-    if (!strcmp(ext, ".mdx"))
+    if (!strcmp(ext, ".mdx")) // check here why it crashes.
     {
         // replace .mdx -> .m2
         fname.erase(fname.length()-2,2);
