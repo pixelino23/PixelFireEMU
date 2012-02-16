@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <cstdio>
 
-Model::Model(std::string &filename) : filename(filename)
+Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {
 }
 
@@ -42,6 +42,8 @@ bool Model::open()
         printf("Error loading model %s\n", filename.c_str());
         return false;
     }
+
+    _unload();
 
     memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
     if (header.nBoundingTriangles > 0)
@@ -69,7 +71,7 @@ bool Model::open()
     return true;
 }
 
-bool Model::ConvertToVMAPModel(char * outfilename)
+bool Model::ConvertToVMAPModel(const char * outfilename)
 {
     int N[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     FILE * output=fopen(outfilename, "wb");
@@ -78,7 +80,7 @@ bool Model::ConvertToVMAPModel(char * outfilename)
         printf("Can't create the output file '%s'\n", outfilename);
         return false;
     }
-    fwrite("VMAP003", 8, 1, output);
+    fwrite(szRawVMAPMagic, 8, 1, output);
     uint32 nVertices = 0;
     nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
@@ -112,23 +114,14 @@ bool Model::ConvertToVMAPModel(char * outfilename)
     {
         for (uint32 vpos=0; vpos <nVertices; ++vpos)
         {
-            float sy = vertices[vpos].y;
-            vertices[vpos].y = vertices[vpos].z;
-            vertices[vpos].z = sy;
+            std::swap(vertices[vpos].y, vertices[vpos].z);
         }
         fwrite(vertices, sizeof(float)*3, nVertices, output);
     }
 
-    delete[] vertices;
-    delete[] indices;
-
     fclose(output);
 
     return true;
-}
-
-Model::~Model()
-{
 }
 
 Vec3D fixCoordSystem(Vec3D v)

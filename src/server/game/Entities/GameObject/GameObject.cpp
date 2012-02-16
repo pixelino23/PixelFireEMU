@@ -31,7 +31,10 @@
 #include "CreatureAISelector.h"
 #include "Group.h"
 
-GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL)
+#include "GameObjectModel.h"
+#include "DynamicTree.h"
+
+GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL), m_model(NULL)
 {
     _objectType |= TYPEMASK_GAMEOBJECT;
     _objectTypeId = TYPEID_GAMEOBJECT;
@@ -63,8 +66,7 @@ GameObject::~GameObject()
 {
     delete m_goValue;
     delete m_AI;
-    //if (_uint32Values)                                      // field array can be not exist if GameOBject not loaded
-    //    CleanupsBeforeDelete();
+    delete m_model;
 }
 
 bool GameObject::AIM_Initialize()
@@ -126,6 +128,11 @@ void GameObject::AddToWorld()
             _zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        if (m_model/* && (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? !GetGOInfo()->door.startOpen : true)*/)
+            GetMap()->Insert(*m_model);
+        if (startOpen)
+            EnableCollision(false);
         WorldObject::AddToWorld();
     }
 }
@@ -139,6 +146,9 @@ void GameObject::RemoveFromWorld()
             _zoneScript->OnGameObjectRemove(this);
 
         RemoveFromOwner();
+        if (m_model)
+            if (GetMap()->Contains(*m_model))
+                GetMap()->Remove(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -198,8 +208,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     // set name for logs usage, doesn't affect anything ingame
     SetName(goinfo->name);
 
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
+    SetDisplayId(goinfo->displayId);
 
+    m_model = GameObjectModel::Create(*this);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoState(go_state);
     SetGoType(GameobjectTypes(goinfo->type));
@@ -1803,7 +1814,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
     {
         case GO_DESTRUCTIBLE_INTACT:
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
+            SetDisplayId(m_goInfo->displayId);
             if (setHealth)
             {
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
@@ -1827,7 +1838,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             if (setHealth)
             {
@@ -1860,7 +1871,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             if (setHealth)
             {
@@ -1878,7 +1889,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->RebuildingDisplayId)
                     modelId = modelData->RebuildingDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             // restores to full health
             if (setHealth)
@@ -1891,9 +1902,78 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
     }
 }
 
-void GameObject::SetLootState(LootState s, Unit* unit)
+void GameObject::SetLootState(LootState state, Unit* unit)
 {
-    m_lootState = s;
-    AI()->OnStateChanged(s, unit);
+    m_lootState = state;
+    AI()->OnStateChanged(state, unit);
+    if (m_model)
+    {
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        
+        if (GetGOData()->go_state == GO_NOT_READY)
+            startOpen = !startOpen;
+
+        if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
+            EnableCollision(startOpen);
+        else if (state == GO_READY)
+            EnableCollision(!startOpen);
+    }
 }
 
+void GameObject::SetGoState(GOState state)
+{
+    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    if (m_model)
+    {
+        if (!IsInWorld())
+            return;
+
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+
+        if (GetGOData()->go_state == GO_NOT_READY)
+            startOpen = !startOpen;
+
+        if (state == GO_STATE_ACTIVE || state == GO_STATE_ACTIVE_ALTERNATIVE)
+            EnableCollision(startOpen);
+        else if (state == GO_STATE_READY)
+            EnableCollision(!startOpen);
+    }
+}
+
+void GameObject::SetDisplayId(uint32 displayid)
+{
+    SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
+    UpdateModel();
+}
+
+void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    WorldObject::SetPhaseMask(newPhaseMask, update);
+    EnableCollision(true);
+}
+
+void GameObject::EnableCollision(bool enable)
+{
+    if (!m_model)
+        return;
+    
+    /*if (enable && !GetMap()->Contains(*m_model))
+        GetMap()->Insert(*m_model);*/
+
+    m_model->enable(enable ? GetPhaseMask() : 0);
+}
+
+void GameObject::UpdateModel()
+{
+    if (!IsInWorld())
+        return;
+    if (m_model)
+        if (GetMap()->Contains(*m_model))
+            GetMap()->Remove(*m_model);
+    delete m_model;
+    m_model = GameObjectModel::Create(*this);
+    if (m_model)
+        GetMap()->Insert(*m_model);
+}
