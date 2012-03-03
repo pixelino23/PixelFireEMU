@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,36 +36,36 @@ public:
     {
         static ChatCommand modifyCommandTable[] =
         {
-            { "hp",             SEC_MODERATOR,      false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",           SEC_MODERATOR,      false, &HandleModifyManaCommand,          "", NULL },
-            { "rage",           SEC_MODERATOR,      false, &HandleModifyRageCommand,          "", NULL },
-            { "runicpower",     SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "energy",         SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
-            { "money",          SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "speed",          SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
-            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
-            { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
-            { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
-            { "bwalk",          SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
-            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
-            { "aspeed",         SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { "faction",        SEC_MODERATOR,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "spell",          SEC_MODERATOR,      false, &HandleModifySpellCommand,         "", NULL },
-            { "tp",             SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
-            { "mount",          SEC_MODERATOR,      false, &HandleModifyMountCommand,         "", NULL },
-            { "honor",          SEC_MODERATOR,      false, &HandleModifyHonorCommand,         "", NULL },
-            { "rep",            SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
-            { "arena",          SEC_MODERATOR,      false, &HandleModifyArenaCommand,         "", NULL },
-            { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
-            { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
-            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
-            { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
-            { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
+            { "hp",            SEC_MODERATOR,      false, &HandleModifyHPCommand,            "", NULL },
+            { "mana",          SEC_MODERATOR,      false, &HandleModifyManaCommand,          "", NULL },
+            { "rage",          SEC_MODERATOR,      false, &HandleModifyRageCommand,          "", NULL },
+            { "runicpower",    SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
+            { "energy",        SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
+            { "money",         SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
+            { "speed",         SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
+            { "swim",          SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
+            { "scale",         SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
+            { "bit",           SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
+            { "bwalk",         SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
+            { "fly",           SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
+            { "aspeed",        SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
+            { "faction",       SEC_MODERATOR,      false, &HandleModifyFactionCommand,       "", NULL },
+            { "spell",         SEC_MODERATOR,      false, &HandleModifySpellCommand,         "", NULL },
+            { "tp",            SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
+            { "mount",         SEC_MODERATOR,      false, &HandleModifyMountCommand,         "", NULL },
+            { "honor",         SEC_MODERATOR,      false, &HandleModifyHonorCommand,         "", NULL },
+            { "rep",           SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
+            { "arena",         SEC_MODERATOR,      false, &HandleModifyArenaCommand,         "", NULL },
+            { "drunk",         SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
+            { "standstate",    SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
+            { "morph",         SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
+            { "phase",         SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
+            { "gender",        SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
+            { "modify",        SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
@@ -1094,7 +1094,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1113,9 +1113,8 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyHonorPoints(amount);
-
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetHonorPoints());
+        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount);
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS));
 
         return true;
     }
@@ -1228,13 +1227,13 @@ public:
 
         if (factionEntry->reputationListID < 0)
         {
-            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->name[handler->GetSessionDbcLocale()], factionId);
+            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->name, factionId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         target->GetReputationMgr().SetReputation(factionEntry, amount);
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[handler->GetSessionDbcLocale()], factionId,
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name, factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
     }
@@ -1308,9 +1307,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyArenaPoints(amount);
+        target->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetArenaPoints());
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS));
 
         return true;
     }

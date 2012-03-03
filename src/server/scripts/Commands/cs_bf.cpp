@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -35,16 +35,16 @@ public:
     {
         static ChatCommand battlefieldcommandTable[] =
         {
-            { "start",          SEC_ADMINISTRATOR,  false, &HandleBattlefieldStart,            "", NULL },
-            { "stop",           SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnd,              "", NULL },
-            { "switch",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldSwitch,           "", NULL },
-            { "timer",          SEC_ADMINISTRATOR,  false, &HandleBattlefieldTimer,            "", NULL },
-            { "enable",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnable,           "", NULL },
+            { "start",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldStart,            "", NULL },
+            { "stop",          SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnd,              "", NULL },
+            { "switch",        SEC_ADMINISTRATOR,  false, &HandleBattlefieldSwitch,           "", NULL },
+            { "timer",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldTimer,            "", NULL },
+            { "enable",        SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnable,           "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "bf",             SEC_ADMINISTRATOR,  false, NULL,            "", battlefieldcommandTable },
+            { "bf",            SEC_ADMINISTRATOR,  false, NULL,            "", battlefieldcommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

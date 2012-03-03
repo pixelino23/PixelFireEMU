@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -55,14 +55,14 @@ EndScriptData */
 
 float AddPos[9][3] =
 {
-    {2.8553810f, -459.823914f, -19.182686f},   //MOVE_AMBUSHER_1 X, Y, Z
-    {12.400000f, -466.042267f, -19.182686f},   //MOVE_AMBUSHER_2 X, Y, Z
-    {51.366653f, -460.836060f, -19.182686f},   //MOVE_AMBUSHER_3 X, Y, Z
-    {62.597980f, -457.433044f, -19.182686f},   //MOVE_AMBUSHER_4 X, Y, Z
-    {77.607452f, -384.302765f, -19.182686f},   //MOVE_AMBUSHER_5 X, Y, Z
-    {63.897900f, -378.984924f, -19.182686f},   //MOVE_AMBUSHER_6 X, Y, Z
-    {34.447250f, -387.333618f, -19.182686f},   //MOVE_GUARDIAN_1 X, Y, Z
-    {14.388216f, -423.468018f, -19.625271f},   //MOVE_GUARDIAN_2 X, Y, Z
+    {2.8553810f, -459.823914f, -19.182686f},  //MOVE_AMBUSHER_1 X, Y, Z
+    {12.400000f, -466.042267f, -19.182686f},  //MOVE_AMBUSHER_2 X, Y, Z
+    {51.366653f, -460.836060f, -19.182686f},  //MOVE_AMBUSHER_3 X, Y, Z
+    {62.597980f, -457.433044f, -19.182686f},  //MOVE_AMBUSHER_4 X, Y, Z
+    {77.607452f, -384.302765f, -19.182686f},  //MOVE_AMBUSHER_5 X, Y, Z
+    {63.897900f, -378.984924f, -19.182686f},  //MOVE_AMBUSHER_6 X, Y, Z
+    {34.447250f, -387.333618f, -19.182686f},  //MOVE_GUARDIAN_1 X, Y, Z
+    {14.388216f, -423.468018f, -19.625271f},  //MOVE_GUARDIAN_2 X, Y, Z
     {42.471519f, -445.115295f, -19.769423f}    //MOVE_GUARDIAN_3 X, Y, Z
 };
 
@@ -136,7 +136,7 @@ public:
             DoCast(me, SPELL_SUBMERGE);//submerge anim
             me->SetVisible(false);//we start invis under water, submerged
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustDied(Unit* /*Killer*/)
@@ -205,7 +205,7 @@ public:
                     {
                         WaitTimer = 3000;
                         CanStartEvent = true;//fresh fished from pool
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else
@@ -324,7 +324,7 @@ public:
                     Submerged = false;
                     me->InterruptNonMeleeSpells(false);//shouldn't be any
                     me->RemoveAllAuras();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->RemoveFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                     DoCast(me, SPELL_EMERGE, true);
                     Spawned = false;
@@ -343,7 +343,7 @@ public:
 
                 if (!Spawned)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     //spawn adds
                     for (uint8 i = 0; i < 9; ++i)
                     {

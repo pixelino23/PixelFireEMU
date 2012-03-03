@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -44,7 +44,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_3          = 0x00000004,
     CAST_FLAG_UNKNOWN_4          = 0x00000008,              // ignore AOE visual
     CAST_FLAG_UNKNOWN_5          = 0x00000010,
-    CAST_FLAG_AMMO               = 0x00000020,              // Projectiles visual
+    CAST_FLAG_UNKNOWN_6          = 0x00000020,
     CAST_FLAG_UNKNOWN_7          = 0x00000040,
     CAST_FLAG_UNKNOWN_8          = 0x00000080,
     CAST_FLAG_UNKNOWN_9          = 0x00000100,
@@ -76,8 +76,8 @@ enum SpellCastFlags
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT             = 0,
-    SPELL_RANGE_MELEE               = 1,     //melee
-    SPELL_RANGE_RANGED              = 2,     //hunter range and ranged weapon
+    SPELL_RANGE_MELEE               = 1,     // melee
+    SPELL_RANGE_RANGED              = 2,     // hunter range and ranged weapon
 };
 
 enum SpellNotifyPushType
@@ -89,7 +89,7 @@ enum SpellNotifyPushType
     PUSH_IN_THIN_LINE,
     PUSH_SRC_CENTER,
     PUSH_DST_CENTER,
-    PUSH_CASTER_CENTER, //this is never used in grid search
+    PUSH_CASTER_CENTER, // this is never used in grid search
     PUSH_CHAIN,
 };
 
@@ -350,6 +350,7 @@ class Spell
         void EffectUnlearnSpecialization(SpellEffIndex effIndex);
         void EffectHealPct(SpellEffIndex effIndex);
         void EffectEnergizePct(SpellEffIndex effIndex);
+        // void EffectTriggerSpellWithValue(SpellEffIndex effIndex); NYI
         void EffectTriggerRitualOfSummoning(SpellEffIndex effIndex);
         void EffectSummonRaFFriend(SpellEffIndex effIndex);
         void EffectKillCreditPersonal(SpellEffIndex effIndex);
@@ -417,9 +418,9 @@ class Spell
 
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
-        void WriteAmmoToPacket(WorldPacket* data);
 
         void InitExplicitTargets(SpellCastTargets const& targets);
+        void SelectExplicitTargets();
         void SelectSpellTargets();
         void SelectEffectTypeImplicitTargets(uint8 effIndex);
         uint32 SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
@@ -457,9 +458,9 @@ class Spell
         void HandleThreatSpells();
 
         SpellInfo const* const m_spellInfo;
-        Item* m_CastItem;
+        Item* _CastItem;
         uint64 m_castItemGUID;
-        uint8 m_cast_count;
+        uint8 _cast_count;
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
@@ -471,7 +472,7 @@ class Spell
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
-        void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
+        void ReSetTimer() { _timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const {return _triggeredCastFlags & TRIGGERED_FULL_MASK;};
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
@@ -516,7 +517,7 @@ class Spell
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
-        //Spell data
+        // Spell data
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
         int32 m_powerCost;                                  // Calculated spell cost initialized only in Spell::prepare
@@ -639,6 +640,9 @@ class Spell
 
         // Scripting system
         void LoadScripts();
+        void CallScriptBeforeCastHandlers();
+        void CallScriptOnCastHandlers();
+        void CallScriptAfterCastHandlers();
         SpellCastResult CallScriptCheckCastHandlers();
         void PrepareScriptHitHandlers();
         bool CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode);
@@ -655,14 +659,14 @@ class Spell
 
         // effect helpers
         void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties);
+        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
         void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
 
         uint32 m_spellState;
-        int32 m_timer;
+        int32 _timer;
 
         TriggerCastFlags _triggeredCastFlags;
 

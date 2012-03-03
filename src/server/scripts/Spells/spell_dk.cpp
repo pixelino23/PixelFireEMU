@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,6 +36,56 @@ enum DeathKnightSpells
     DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     DK_SPELL_UNHOLY_PRESENCE                    = 48265,
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
+};
+
+class spell_dk_necrotic_strike : public SpellScriptLoader
+{
+public:
+    spell_dk_necrotic_strike() : SpellScriptLoader("spell_dk_necrotic_strike") { }
+
+    class spell_dk_necrotic_strike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_necrotic_strike_SpellScript);
+
+        enum Spells
+        {
+            DK_SPELL_NECROTIC_STRIKE = 73975,
+        };
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return sSpellStore.LookupEntry(DK_SPELL_NECROTIC_STRIKE);
+        }
+
+        void HandleAfterHit()
+        {
+            Unit* caster = GetCaster();
+
+            if (Unit* target = GetHitUnit())
+            {
+                if (!target)//
+                    return;
+                    int32 nsbp = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.75f;//initial scale
+                    int32 getheal = target->GetAbsorbHeal();//Get current absorb value if any
+                    int32 heal = nsbp + getheal;//define &| combine values
+
+                if (Aura* NS = target->GetAura(73975))
+                {
+                    target->SetAbsorbHeal(heal);//set absorb value
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_dk_necrotic_strike_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript *GetSpellScript() const
+    {
+        return new spell_dk_necrotic_strike_SpellScript();
+    }
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -252,7 +302,7 @@ class spell_dk_death_pact : public SpellScriptLoader
                 {
                     if ((*itr)->GetTypeId() == TYPEID_UNIT
                         && (*itr)->GetOwnerGUID() == GetCaster()->GetGUID()
-                        && (*itr)->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
+                        && (*itr)->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_UNDEAD)
                     {
                         unit_to_add = (*itr);
                         break;
@@ -319,50 +369,6 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_scourge_strike_SpellScript();
-        }
-};
-
-// 49145 - Spell Deflection
-class spell_dk_spell_deflection : public SpellScriptLoader
-{
-    public:
-        spell_dk_spell_deflection() : SpellScriptLoader("spell_dk_spell_deflection") { }
-
-        class spell_dk_spell_deflection_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_spell_deflection_AuraScript);
-
-            uint32 absorbPct;
-
-            bool Load()
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // You have a chance equal to your Parry chance
-                if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetUnitParryChance()))
-                    absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register()
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_spell_deflection_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_spell_deflection_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_spell_deflection_AuraScript();
         }
 };
 
@@ -522,7 +528,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*eff*/)
             {
-                if(Unit* target = GetHitUnit())
+                if (Unit* target = GetHitUnit())
                 {
                     uint32 addDuration = urand(2, 6);
                     if (target->HasAura(45524)) // Chains of Ice
@@ -536,7 +542,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike_SpellScript::HandleScript,EFFECT_2,SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -559,7 +565,7 @@ class spell_dk_chains_of_ice : public SpellScriptLoader
 
             void HandleEffect(SpellEffIndex /*eff*/)
             {
-                if(Unit* target = GetHitUnit())
+                if (Unit* target = GetHitUnit())
                 {
                     if (GetCaster()->HasAura(50041)) // Chilblains Rank 2
                         GetCaster()->CastSpell(target, 96294, true);
@@ -582,13 +588,13 @@ class spell_dk_chains_of_ice : public SpellScriptLoader
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_necrotic_strike();
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
     new spell_dk_scourge_strike();
-    new spell_dk_spell_deflection();
     new spell_dk_blood_boil();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_unholy_presence();

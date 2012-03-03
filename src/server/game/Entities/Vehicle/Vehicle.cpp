@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -56,7 +56,7 @@ void Vehicle::Install()
 {
     if (Creature* creature = _me->ToCreature())
     {
-        switch (_vehicleInfo->m_powerType)
+        switch (_vehicleInfo->_powerType)
         {
             case POWER_STEAM:
             case POWER_HEAT:
@@ -73,10 +73,10 @@ void Vehicle::Install()
             default:
                 for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
                 {
-                    if (!creature->m_spells[i])
+                    if (!creature->_spells[i])
                         continue;
 
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[i]);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->_spells[i]);
                     if (!spellInfo)
                         continue;
 
@@ -147,7 +147,7 @@ void Vehicle::ApplyAllImmunities()
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
     // Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
-    if (_me->ToCreature() && _me->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
+    if (_me->ToCreature() && _me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
     {
         // Heal & dispel ...
         _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
@@ -177,7 +177,7 @@ void Vehicle::ApplyAllImmunities()
         case 160: // Strand of the Ancients
         case 244: // Wintergrasp
         case 510: // Isle of Conquest
-            _me->SetControlled(true, UNIT_STAT_ROOT);
+            _me->SetControlled(true, UNIT_STATE_ROOT);
             // why we need to apply this? we can simple add immunities to slow mechanic in DB
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             break;
@@ -343,16 +343,16 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     }
 
     if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK1))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+        unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
-    unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
-    unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
-    unit->m_movementInfo.t_pos.m_positionZ = veSeat->m_attachmentOffsetZ;
-    unit->m_movementInfo.t_pos.m_orientation = 0;
-    unit->m_movementInfo.t_time = 0; // 1 for player
-    unit->m_movementInfo.t_seat = seat->first;
+    unit->_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
+    unit->_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
+    unit->_movementInfo.t_pos.m_positionZ = veSeat->m_attachmentOffsetZ;
+    unit->_movementInfo.t_pos._orientation = 0;
+    unit->_movementInfo.t_time = 0; // 1 for player
+    unit->_movementInfo.t_seat = seat->first;
 
     if (_me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
@@ -365,7 +365,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (_me->IsInWorld())
     {
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
-        unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+        unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                 // also adds MOVEMENTFLAG_ROOT
         unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
@@ -408,7 +408,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         ++_usableSeatNum;
     }
 
-    unit->ClearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
@@ -416,9 +416,9 @@ void Vehicle::RemovePassenger(Unit* unit)
     if (_me->IsInWorld())
     {
         unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
-        unit->m_movementInfo.t_time = 0;
-        unit->m_movementInfo.t_seat = 0;
+        unit->_movementInfo.t_pos.Relocate(0, 0, 0, 0);
+        unit->_movementInfo.t_time = 0;
+        unit->_movementInfo.t_seat = 0;
     }
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
@@ -434,8 +434,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
-    Map* map = _me->GetMap();
-    ASSERT(map != NULL);
+    ASSERT(_me->GetMap());
 
     // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
@@ -445,10 +444,10 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             ASSERT(passenger->IsOnVehicle(GetBase()));
             ASSERT(GetSeatForPassenger(passenger));
 
-            float px = x + passenger->m_movementInfo.t_pos.m_positionX;
-            float py = y + passenger->m_movementInfo.t_pos.m_positionY;
-            float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
-            float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
+            float px = x + passenger->_movementInfo.t_pos.m_positionX;
+            float py = y + passenger->_movementInfo.t_pos.m_positionY;
+            float pz = z + passenger->_movementInfo.t_pos.m_positionZ;
+            float po = ang + passenger->_movementInfo.t_pos._orientation;
 
             passenger->UpdatePosition(px, py, pz, po);
         }
@@ -473,7 +472,7 @@ void Vehicle::TeleportVehicle(float x, float y, float z, float ang)
     RemoveAllPassengers(); // this can unlink Guns from Siege Engines
     _me->NearTeleportTo(x, y, z, ang);
     for (GuidSet::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
-        if(Unit* player = sObjectAccessor->FindUnit(*itr))
+        if (Unit* player = sObjectAccessor->FindUnit(*itr))
                 player->NearTeleportTo(x, y, z, ang);
 }
 

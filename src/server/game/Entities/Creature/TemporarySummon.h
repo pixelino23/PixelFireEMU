@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -41,7 +41,7 @@ class TempSummon : public Creature
         const SummonPropertiesEntry* const m_Properties;
     private:
         TempSummonType m_type;
-        uint32 m_timer;
+        uint32 _timer;
         uint32 m_lifetime;
         uint64 m_summonerGUID;
 };
@@ -52,13 +52,13 @@ class Minion : public TempSummon
         Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         void InitStats(uint32 duration);
         void RemoveFromWorld();
-        Unit* GetOwner() { return m_owner; }
+        Unit* GetOwner() { return _owner; }
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
         bool IsGuardianPet() const;
     protected:
-        Unit* const m_owner;
+        Unit* const _owner;
         float m_followAngle;
 };
 
@@ -95,16 +95,16 @@ class Puppet : public Minion
         void Update(uint32 time);
         void RemoveFromWorld();
     protected:
-        Player* m_owner;
+        Player* _owner;
 };
 
 class ForcedUnsummonDelayEvent : public BasicEvent
 {
 public:
-    ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), m_owner(owner) { }
+    ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), _owner(owner) { }
     bool Execute(uint64 e_time, uint32 p_time);
 
 private:
-    TempSummon& m_owner;
+    TempSummon& _owner;
 };
 #endif

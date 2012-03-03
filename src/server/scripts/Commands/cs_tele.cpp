@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -38,16 +38,16 @@ public:
     {
         static ChatCommand teleCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleTeleAddCommand,             "", NULL },
-            { "del",            SEC_ADMINISTRATOR,  true,  &HandleTeleDelCommand,             "", NULL },
-            { "name",           SEC_MODERATOR,      true,  &HandleTeleNameCommand,            "", NULL },
-            { "group",          SEC_MODERATOR,      false, &HandleTeleGroupCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleTeleCommand,                "", NULL },
+            { "add",           SEC_ADMINISTRATOR,  false, &HandleTeleAddCommand,             "", NULL },
+            { "del",           SEC_ADMINISTRATOR,  true,  &HandleTeleDelCommand,             "", NULL },
+            { "name",          SEC_MODERATOR,      true,  &HandleTeleNameCommand,            "", NULL },
+            { "group",         SEC_MODERATOR,      false, &HandleTeleGroupCommand,           "", NULL },
+            { "",              SEC_MODERATOR,      false, &HandleTeleCommand,                "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "tele",           SEC_MODERATOR,      false, NULL,                   "", teleCommandTable },
+            { "tele",          SEC_MODERATOR,      false, NULL,                   "", teleCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
@@ -129,7 +129,7 @@ public:
         if (strcmp(teleStr, "$home") == 0)    // References target's homebind
         {
             if (target)
-                target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation());
+                target->TeleportTo(target->_homebindMapId, target->_homebindX, target->_homebindY, target->_homebindZ, target->GetOrientation());
             else
             {
                 QueryResult resultDB = CharacterDatabase.PQuery("SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid = %u", target_guid);
@@ -242,15 +242,15 @@ public:
 
         std::string nameLink = handler->GetNameLink(target);
 
-        Group* grp = target->GetGroup();
-        if (!grp)
+        Group* group = target->GetGroup();
+        if (!group)
         {
             handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* player = itr->getSource();
 

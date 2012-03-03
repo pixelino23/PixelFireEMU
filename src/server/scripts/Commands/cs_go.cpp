@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -38,22 +38,22 @@ public:
     {
         static ChatCommand goCommandTable[] =
         {
-            { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "", NULL },
-            { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "", NULL },
-            { "grid",           SEC_MODERATOR,      false, &HandleGoGridCommand,              "", NULL },
-            { "object",         SEC_MODERATOR,      false, &HandleGoObjectCommand,            "", NULL },
-            { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
-            { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
-            { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
-            { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
+            { "creature",      SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "", NULL },
+            { "graveyard",     SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "", NULL },
+            { "grid",          SEC_MODERATOR,      false, &HandleGoGridCommand,              "", NULL },
+            { "object",        SEC_MODERATOR,      false, &HandleGoObjectCommand,            "", NULL },
+            { "taxinode",      SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
+            { "trigger",       SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
+            { "zonexy",        SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
+            { "xyz",           SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
+            { "ticket",        SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
+            { "",              SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "go",             SEC_MODERATOR,      false, NULL,                     "", goCommandTable },
+            { "go",            SEC_MODERATOR,      false, NULL,                     "", goCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
@@ -445,7 +445,7 @@ public:
 
         if (map->Instanceable())
         {
-            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->area_name[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
+            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->area_name, map->GetId(), map->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }

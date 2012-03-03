@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -76,6 +76,12 @@ enum LoginDatabaseStatements
     LOGIN_UPDATE_PASSWORD,
     LOGIN_UPDATE_MUTE_TIME,
     LOGIN_UPDATE_LAST_IP,
+    LOGIN_UPDATE_ACCOUNT_ONLINE,
+    LOGIN_UPDATE_UPTIME_PLAYERS,
+    LOGIN_DEL_OLD_LOGS,
+    LOGIN_DEL_ACCOUNT_ACCESS,
+    LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM,
+    LOGIN_INS_ACCOUNT_ACCESS,
 
     MAX_LOGINDATABASE_STATEMENTS,
 };

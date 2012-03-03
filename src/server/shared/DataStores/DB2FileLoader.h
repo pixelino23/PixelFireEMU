@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -38,21 +38,21 @@ class DB2FileLoader
         float getFloat(size_t field) const
         {
             assert(field < file.fieldCount);
-            float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
+            float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint32 getUInt(size_t field) const
         {
             assert(field < file.fieldCount);
-            uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
+            uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint8 getUInt8(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
+            return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
         }
 
         const char *getString(size_t field) const

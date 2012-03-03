@@ -1,9 +1,9 @@
 /*
-* Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+* Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
+* Free Software Foundation; either version 3 of the License, or (at your
 * option) any later version.
 *
 * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -24,7 +24,7 @@ bool BattlefieldTB::SetupBattlefield()
     m_TypeId                     = BATTLEFIELD_TB;    //View enum BattlefieldTypes
     m_BattleId                   = BATTLEFIELD_BATTLEID_TB;
     m_ZoneId                     = 5095; // Tol Barad
-    m_MapId                      = 732;  // Map X
+    _MapId                      = 732;  // Map X
     m_MaxPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
     m_enable                     = sWorld->getBoolConfig(CONFIG_TOL_BARAD_ENABLE);
     m_MinPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN);
@@ -35,9 +35,9 @@ bool BattlefieldTB::SetupBattlefield()
     m_StartGroupingTimer         = 15*60*1000; // in ms
     m_StartGrouping=false;
     KickPositionA.Relocate(-363.897f, 1047.931f, 22, 0);
-    KickPositionA.m_mapId        = m_MapId;
+    KickPositionA.m_mapId        = _MapId;
     KickPositionH.Relocate(-609.336f, 1392.194f, 21.5f, 0);
-    KickPositionH.m_mapId        = m_MapId;
+    KickPositionH.m_mapId        = _MapId;
     RegisterZone(m_ZoneId);
     m_Data32.resize(BATTLEFIELD_TB_DATA_MAX);
     m_saveTimer                  = 60000;
@@ -56,7 +56,7 @@ bool BattlefieldTB::SetupBattlefield()
         m_WarTime                = sWorld->getWorldState(5387);
         m_DefenderTeam           = (TeamId)sWorld->getWorldState(5384);
         m_Timer                  = sWorld->getWorldState(TBClockWorldState[0]);
-    if(m_WarTime)
+    if (m_WarTime)
     {
         m_WarTime = false;
         m_Timer = 10 * 60 * 1000;
@@ -97,7 +97,7 @@ bool BattlefieldTB::SetupBattlefield()
             // Create Object
             BfCapturePointTB* TBWorkShop = new BfCapturePointTB(this, GetAttackerTeam());
             // Spawn gameobject associate (see in OnGameObjectCreate, of OutdoorPvP for see association)
-            if(TBWorkShop->SetCapturePointData(TBCapturePointDataBase[i].CapturePoint.entryh, 732,
+            if (TBWorkShop->SetCapturePointData(TBCapturePointDataBase[i].CapturePoint.entryh, 732,
                 TBCapturePointDataBase[i].CapturePoint.x,
                 TBCapturePointDataBase[i].CapturePoint.y,
                 TBCapturePointDataBase[i].CapturePoint.z,
@@ -120,10 +120,10 @@ bool BattlefieldTB::SetupBattlefield()
     for (uint8 i = 0; i<TB_MAX_KEEP_NPC; i++)
     {
         // Horde npc
-        if(Creature* creature = SpawnCreature(TBKeepNPC[i].entryh, TBKeepNPC[i].x, TBKeepNPC[i].y, TBKeepNPC[i].z, TBKeepNPC[i].o, TEAM_HORDE))
+        if (Creature* creature = SpawnCreature(TBKeepNPC[i].entryh, TBKeepNPC[i].x, TBKeepNPC[i].y, TBKeepNPC[i].z, TBKeepNPC[i].o, TEAM_HORDE))
             KeepCreature[TEAM_HORDE].insert(creature->GetGUID());
         // Alliance npc
-        if(Creature* creature = SpawnCreature(TBKeepNPC[i].entrya, TBKeepNPC[i].x, TBKeepNPC[i].y, TBKeepNPC[i].z, TBKeepNPC[i].o, TEAM_ALLIANCE))
+        if (Creature* creature = SpawnCreature(TBKeepNPC[i].entrya, TBKeepNPC[i].x, TBKeepNPC[i].y, TBKeepNPC[i].z, TBKeepNPC[i].o, TEAM_ALLIANCE))
             KeepCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
     }
 
@@ -283,7 +283,7 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
         {
             if (Unit* unit = ObjectAccessor::FindUnit((*itr)))
                 if (Creature* creature = unit->ToCreature())
-                    ShowNpc(creature,true);
+                    ShowNpc(creature, true);
         }
         // Hide creatures that should be visible only when battle is on.
         for (GuidSet::const_iterator itr = WarCreature[GetAttackerTeam()].begin(); itr != WarCreature[GetAttackerTeam()].end(); ++itr)
@@ -309,7 +309,7 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
         {
             if (Unit* unit = ObjectAccessor::FindUnit((*itr)))
                 if (Creature* creature = unit->ToCreature())
-                    ShowNpc(creature,true);
+                    ShowNpc(creature, true);
         }*/
     }
 
@@ -321,7 +321,7 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
     // Update all graveyard, control is to defender when no wartime
     for (uint8 i = 0; i<BATTLEFIELD_TB_GY_HORDE; i++)
     {
-        if(GetGraveYardById(i))
+        if (GetGraveYardById(i))
         {
             GetGraveYardById(i)->ChangeControl(GetDefenderTeam());
         }
@@ -411,7 +411,7 @@ void BattlefieldTB::DoCompleteOrIncrementAchievement(uint32 achievement, Player*
 {
     /*AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
 
-    switch(achievement)
+    switch (achievement)
     {
         case ACHIEVEMENTS_WIN_TB_100 :
         {
@@ -497,7 +497,7 @@ WorldPacket BattlefieldTB::BuildInitWorldStates()
 {
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(BuildingsInZone.size()*8)+(WorkShopList.size()*8)));
 
-    data << uint32(m_MapId);
+    data << uint32(_MapId);
     data << uint32(m_ZoneId);
     data << uint32(0);
     data << uint16(4+2+4+BuildingsInZone.size()+WorkShopList.size());
@@ -535,7 +535,7 @@ void BattlefieldTB::SendInitWorldStatesToAll()
     WorldPacket data = BuildInitWorldStates();
     for (uint8 team = 0; team<2; team++)
         for (GuidSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if(Player* player = ObjectAccessor::FindPlayer((*itr)))
+            if (Player* player = ObjectAccessor::FindPlayer((*itr)))
                 player->GetSession()->SendPacket(&data);
 }
 
@@ -597,13 +597,13 @@ void BattlefieldTB::ProcessEvent(GameObject* obj, uint32 eventId)
 
 void BfCapturePointTB::ChangeTeam(TeamId /*oldteam*/)
 {
-    m_WorkShop->ChangeControl(m_team, false);
+    m_WorkShop->ChangeControl(_team, false);
 }
 
 BfCapturePointTB::BfCapturePointTB(BattlefieldTB* bf, TeamId control) : BfCapturePoint(bf)
 {
     m_Bf = bf;
-    m_team = control;
+    _team = control;
 }
 
 BfGraveYardTB::BfGraveYardTB(BattlefieldTB* bf) : BfGraveYard(bf)

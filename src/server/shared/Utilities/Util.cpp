@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -31,17 +31,22 @@
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
-int32 irand (int32 min, int32 max)
+int32 irand(int32 min, int32 max)
 {
     return int32(sfmtRand->IRandom(min, max));
 }
 
-uint32 urand (uint32 min, uint32 max)
+uint32 urand(uint32 min, uint32 max)
 {
     return sfmtRand->URandom(min, max);
 }
 
-int32 rand32 ()
+float frand(float min, float max)
+{
+    return float(sfmtRand->Random() * (max - min) + min);
+}
+
+int32 rand32()
 {
     return int32(sfmtRand->BRandom());
 }
@@ -51,7 +56,7 @@ double rand_norm(void)
     return sfmtRand->Random();
 }
 
-double rand_chance (void)
+double rand_chance(void)
 {
     return sfmtRand->Random() * 100.0;
 }
@@ -69,9 +74,14 @@ uint32 urand(uint32 min, uint32 max)
     return mtRand->randInt (max - min) + min;
 }
 
+float frand(float min, float max)
+{
+    return float(mtRand->randExc(max - min) + min);
+}
+
 int32 rand32()
 {
-    return mtRand->randInt ();
+    return mtRand->randInt();
 }
 
 double rand_norm(void)
@@ -406,12 +416,12 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
     static wchar_t const j_End[]    = { wchar_t(1), wchar_t(0x0439), wchar_t(0x0000)};
 
     static wchar_t const* const dropEnds[6][8] = {
-        { &a_End[1],  &o_End[1],    &ya_End[1],   &ie_End[1],  &soft_End[1], &j_End[1],    NULL,       NULL },
-        { &a_End[1],  &ya_End[1],   &yeru_End[1], &i_End[1],   NULL,         NULL,         NULL,       NULL },
-        { &ie_End[1], &u_End[1],    &yu_End[1],   &i_End[1],   NULL,         NULL,         NULL,       NULL },
-        { &u_End[1],  &yu_End[1],   &o_End[1],    &ie_End[1],  &soft_End[1], &ya_End[1],   &a_End[1],  NULL },
+        { &a_End[1], &o_End[1],   &ya_End[1],  &ie_End[1], &soft_End[1], &j_End[1],   NULL,       NULL },
+        { &a_End[1], &ya_End[1],  &yeru_End[1], &i_End[1],  NULL,         NULL,         NULL,       NULL },
+        { &ie_End[1], &u_End[1],   &yu_End[1],  &i_End[1],  NULL,         NULL,         NULL,       NULL },
+        { &u_End[1], &yu_End[1],  &o_End[1],   &ie_End[1], &soft_End[1], &ya_End[1],  &a_End[1], NULL },
         { &oj_End[1], &io_j_End[1], &ie_j_End[1], &o_m_End[1], &io_m_End[1], &ie_m_End[1], &yu_End[1], NULL },
-        { &ie_End[1], &i_End[1],    NULL,         NULL,        NULL,         NULL,         NULL,       NULL }
+        { &ie_End[1], &i_End[1],   NULL,         NULL,        NULL,         NULL,         NULL,       NULL }
     };
 
     for (wchar_t const* const* itr = &dropEnds[declension][0]; *itr; ++itr)

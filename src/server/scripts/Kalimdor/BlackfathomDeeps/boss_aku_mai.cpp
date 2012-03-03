@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,19 +36,19 @@ public:
 
     struct boss_aku_maiAI : public ScriptedAI
     {
-        boss_aku_maiAI(Creature* c) : ScriptedAI(c)
+        boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiPoisonCloudTimer;
+        uint32 poisonCloudTimer;
         bool bIsEnraged;
 
         InstanceScript* instance;
 
         void Reset()
         {
-            uiPoisonCloudTimer = urand(5000, 9000);
+            poisonCloudTimer = urand(5000, 9000);
             bIsEnraged = false;
             if (instance)
                 instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
@@ -71,11 +71,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiPoisonCloudTimer < diff)
+            if (poisonCloudTimer < diff)
             {
                 DoCastVictim(SPELL_POISON_CLOUD);
-                uiPoisonCloudTimer = urand(25000, 50000);
-            } else uiPoisonCloudTimer -= diff;
+                poisonCloudTimer = urand(25000, 50000);
+            } else poisonCloudTimer -= diff;
 
             if (!bIsEnraged && HealthBelowPct(30))
             {

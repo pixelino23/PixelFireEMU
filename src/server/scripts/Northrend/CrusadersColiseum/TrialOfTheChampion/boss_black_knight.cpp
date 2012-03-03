@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -111,7 +111,7 @@ public:
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
-            me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
             bEventInProgress = false;
             bEvent = false;
@@ -167,7 +167,7 @@ public:
                     uiPhase++;
                     uiResurrectTimer = 4000;
                     bEventInProgress = false;
-                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 } else uiResurrectTimer -= uiDiff;
             }
 
@@ -211,14 +211,14 @@ public:
                             if (!bSummonArmy)
                             {
                                 bSummonArmy = true;
-                                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                 DoCast(me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
                             {
                                 if (uiDeathArmyCheckTimer <= uiDiff)
                                 {
-                                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                     uiDeathArmyCheckTimer = 0;
                                     bDeathArmyDone = true;
                                 } else uiDeathArmyCheckTimer -= uiDiff;
@@ -263,7 +263,7 @@ public:
                 }
             }
 
-            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STATE_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
         }
 
@@ -273,7 +273,7 @@ public:
             {
                 uiDamage = 0;
                 me->SetHealth(0);
-                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 RemoveSummons();
                 switch (uiPhase)
                 {

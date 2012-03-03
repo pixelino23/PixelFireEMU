@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -287,6 +287,17 @@ ObjectMgr::~ObjectMgr()
     m_mCacheTrainerSpellMap.clear();
 }
 
+std::list<CurrencyLoot> ObjectMgr::GetCurrencyLoot(uint32 entry, uint8 type)
+{
+    std::list<CurrencyLoot> temp;
+    for (CurrencysLoot::iterator itr = mCurrencysLoot.begin(); itr != mCurrencysLoot.end(); ++itr)
+    {
+        if (itr->Entry == entry && itr->Type == type)
+            temp.push_back(*itr);
+    }
+    return temp;
+}
+
 void ObjectMgr::AddArenaTeam(ArenaTeam* arenaTeam)
 {
     mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
@@ -444,14 +455,10 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.Entry = entry;
 
         for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
-        {
             creatureTemplate.DifficultyEntry[i] = fields[1 + i].GetUInt32();
-        }
 
         for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-        {
             creatureTemplate.KillCredit[i] = fields[4 + i].GetUInt32();
-        }
 
         creatureTemplate.Modelid1          = fields[6].GetUInt32();
         creatureTemplate.Modelid2          = fields[7].GetUInt32();
@@ -496,14 +503,10 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.SkinLootId        = fields[46].GetUInt32();
 
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        {
             creatureTemplate.resistance[i] = fields[47 + i -1].GetInt32();
-        }
 
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        {
             creatureTemplate.spells[i] = fields[53 + i].GetUInt32();
-        }
 
         creatureTemplate.PetSpellDataId = fields[61].GetUInt32();
         creatureTemplate.VehicleId      = fields[62].GetUInt32();
@@ -518,9 +521,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.RacialLeader   = fields[71].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-        {
             creatureTemplate.questItems[i] = fields[72 + i].GetUInt32();
-        }
 
         creatureTemplate.movementId         = fields[78].GetUInt32();
         creatureTemplate.RegenHealth        = fields[79].GetBool();
@@ -535,9 +536,7 @@ void ObjectMgr::LoadCreatureTemplates()
 
     // Checking needs to be done after loading because of the difficulty self referencing
     for (CreatureTemplateContainer::const_iterator itr = CreatureTemplateStore.begin(); itr != CreatureTemplateStore.end(); ++itr)
-    {
         CheckCreatureTemplate(&itr->second);
-    }
 
     sLog->outString(">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -932,7 +931,8 @@ void ObjectMgr::LoadCreatureAddons()
 
         uint32 guid = fields[0].GetUInt32();
 
-        if (mCreatureDataMap.find(guid) == mCreatureDataMap.end())
+        CreatureData const* creData = GetCreatureData(guid);
+        if (!creData)
         {
             sLog->outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
             continue;
@@ -941,6 +941,12 @@ void ObjectMgr::LoadCreatureAddons()
         CreatureAddon& creatureAddon = CreatureAddonStore[guid];
 
         creatureAddon.path_id = fields[1].GetUInt32();
+        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        {
+            const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
+            sLog->outErrorDb("Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
+        }
+
         creatureAddon.mount   = fields[2].GetUInt32();
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
@@ -1442,15 +1448,6 @@ void ObjectMgr::LoadCreatures()
         return;
     }
 
-    // Build single time for check creature data
-    std::set<uint32> difficultyCreatures[MAX_DIFFICULTY - 1];
-
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
-            for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
-                if (itr->second.DifficultyEntry[diff])
-                    difficultyCreatures[diff].insert(itr->second.DifficultyEntry[diff]);
-
     // Build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
@@ -1511,7 +1508,7 @@ void ObjectMgr::LoadCreatures()
         bool ok = true;
         for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
         {
-            if (difficultyCreatures[diff].find(data.id) != difficultyCreatures[diff].end())
+            if (difficultyEntries[diff].find(data.id) != difficultyEntries[diff].end())
             {
                 sLog->outErrorDb("Table `creature` have creature (GUID: %u) that listed as difficulty %u template (entry: %u) in `creature_template`, skipped.",
                     guid, diff + 1, data.id);
@@ -2203,7 +2200,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
     if ((itemTemplate.Flags & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
         itemTemplate.Bonding == BIND_QUEST_ITEM || itemTemplate.Area || itemTemplate.Map ||
         itemTemplate.Stackable > 1 ||
-        !(itemTemplate.SellPrice)) // || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId))) TODO: Fix this.
+        !(itemTemplate.SellPrice) || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId))
         return;
 
     for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
@@ -2695,18 +2692,18 @@ void ObjectMgr::LoadItemSetNames()
 
     if (!itemSetItems.empty())
     {
-        ItemTemplate const* pProto;
+        ItemTemplate const* proto;
         for (std::set<uint32>::iterator itr = itemSetItems.begin(); itr != itemSetItems.end(); ++itr)
         {
             uint32 entry = *itr;
             // add data from item_template if available
-            pProto = sObjectMgr->GetItemTemplate(entry);
-            if (pProto)
+            proto = sObjectMgr->GetItemTemplate(entry);
+            if (proto)
             {
                 sLog->outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, adding data from `item_template`.", entry);
                 ItemSetNameEntry &data = mItemSetNameMap[entry];
-                data.name = pProto->Name1;
-                data.InventoryType = pProto->InventoryType;
+                data.name = proto->Name1;
+                data.InventoryType = proto->InventoryType;
                 ++count;
             }
             else
@@ -4669,7 +4666,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
             case SCRIPT_COMMAND_CAST_SPELL:
             {
-                if (!sSpellMgr->GetSpellInfo(tmp.CastSpell.SpellID))
+                if (!sSpellStore.LookupEntry(tmp.CastSpell.SpellID))
                 {
                     sLog->outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
                         tableName.c_str(), tmp.CastSpell.SpellID, tmp.id);
@@ -4947,7 +4944,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                sLog->outError("TSCR: Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                sLog->outError("TSCR: Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped", GetScriptName(sitr->second->second));
                 valid = false;
             }
             if (spellScript)
@@ -5353,7 +5350,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         if (serverUp)
             player = ObjectAccessor::FindPlayer((uint64)m->receiver);
 
-        if (player && player->m_mailsLoaded)
+        if (player && player->_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
             // his in mailbox and he has already listed his mails)
             delete m;
@@ -5873,7 +5870,7 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
     return NULL;
 }
 
-bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
 {
     if (FindGraveYardData(id, zoneId))
         return false;
@@ -5886,16 +5883,21 @@ bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inD
     mGraveYardMap.insert(GraveYardMap::value_type(zoneId, data));
 
     // add link to DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("INSERT INTO game_graveyard_zone (id, ghost_zone, faction) "
-            "VALUES ('%u', '%u', '%u')", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return true;
 }
 
-void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
 {
     GraveYardMap::iterator graveLow  = mGraveYardMap.lower_bound(zoneId);
     GraveYardMap::iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
@@ -5934,9 +5936,15 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     mGraveYardMap.erase(itr);
 
     // remove link from DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("DELETE FROM game_graveyard_zone WHERE id = '%u' AND ghost_zone = '%u' AND faction = '%u'", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return;
@@ -6042,8 +6050,8 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar.item)
         {
-            ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(ar.item);
-            if (!pProto)
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(ar.item);
+            if (!proto)
             {
                 sLog->outError("Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item, mapid, difficulty);
                 ar.item = 0;
@@ -6052,8 +6060,8 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar.item2)
         {
-            ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(ar.item2);
-            if (!pProto)
+            ItemTemplate const *proto = sObjectMgr->GetItemTemplate(ar.item2);
+            if (!proto)
             {
                 sLog->outError("Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item2, mapid, difficulty);
                 ar.item2 = 0;
@@ -6159,10 +6167,10 @@ void ObjectMgr::SetHighestGuids()
         m_hiItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= m_hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);        // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);    // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6704,6 +6712,45 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++m_hiPetNumber;
 }
 
+void ObjectMgr::LoadCurrencysLoot()
+{
+    QueryResult result = WorldDatabase.PQuery("SELECT entry, type, currencyId, currencyAmount FROM currency_loot");
+    if (!result)
+        return;
+
+    uint32 count = 0;
+    do
+    {
+        Field* field = result->Fetch();
+
+        uint32 entry = field[0].GetUInt32();
+        uint8 type = field[1].GetInt8();
+        uint32 currencyId = field[2].GetUInt32();
+        uint32 currencyAmount = field[3].GetUInt32();
+
+        if (type < 1)
+        {
+            sLog->outString("Currency 'type' can not be < 1 (entry = %u type = %i)", entry, type);
+            continue;
+        }
+        else if (type > 3)
+        {
+            sLog->outString("Currency 'type' can not be > 3 (entry = %u type = %i)", entry, type);
+            continue;
+        }
+
+        CurrencyLoot loot = CurrencyLoot(entry, type, currencyId, currencyAmount);
+        mCurrencysLoot.push_back(loot);
+        ++count;
+    }
+    while (result->NextRow());
+
+    if (count)
+        sLog->outString("Loaded %u currency loot definition", count);
+    else
+        sLog->outString("Loaded 0 currency loot definition. Table is empty!");
+}
+
 void ObjectMgr::LoadCorpses()
 {
     uint32 oldMSTime = getMSTime();
@@ -6923,7 +6970,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
     m_RepSpilloverTemplateMap.clear();                      // for reload case
 
     uint32 count = 0;
-    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4 FROM reputation_spillover_template");
+    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4,faction5,rate_5,rank_5 FROM reputation_spillover_template");
 
     if (!result)
     {
@@ -6952,6 +6999,9 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         repTemplate.faction[3]          = fields[10].GetUInt32();
         repTemplate.faction_rate[3]     = fields[11].GetFloat();
         repTemplate.faction_rank[3]     = fields[12].GetUInt32();
+        repTemplate.faction[4]          = fields[13].GetUInt32();
+        repTemplate.faction_rate[4]     = fields[14].GetFloat();
+        repTemplate.faction_rank[4]     = fields[15].GetUInt32();
 
         FactionEntry const *factionEntry = sFactionStore.LookupEntry(factionId);
 
@@ -7015,6 +7065,12 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         if (repTemplate.faction[3] && !factionEntry3)
         {
             sLog->outErrorDb("Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[3]);
+            continue;
+        }
+        FactionEntry const *factionEntry4 = sFactionStore.LookupEntry(repTemplate.faction[4]);
+        if (repTemplate.faction[4] && !factionEntry4)
+        {
+            sLog->outErrorDb("Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[4]);
             continue;
         }
 
@@ -7774,7 +7830,7 @@ bool ObjectMgr::LoadSkyFireStrings(char const* table, int32 min_value, int32 max
             return false;
         }
 
-        // real range (max+1, min+1) exaple: (-10, -1000) -> -999...-10+1
+        // real range (max+1, min+1) example: (-10, -1000) -> -999...-10+1
         std::swap(start_value, end_value);
         ++start_value;
         ++end_value;
@@ -8071,11 +8127,18 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     m_GameTeleMap[new_id] = tele;
 
-    std::string safeName(tele.name);
-    WorldDatabase.EscapeString(safeName);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
 
-    WorldDatabase.PExecute("INSERT INTO game_tele (id, position_x, position_y, position_z, orientation, map, name) VALUES (%u, %f, %f, %f, %f, %d, '%s')",
-        new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, safeName.c_str());
+    stmt->setUInt32(0, new_id);
+    stmt->setFloat(1, tele.position_x);
+    stmt->setFloat(2, tele.position_y);
+    stmt->setFloat(3, tele.position_z);
+    stmt->setFloat(4, tele.orientation);
+    stmt->setUInt16(5, uint16(tele.mapId));
+    stmt->setString(6, tele.name);
+
+    WorldDatabase.Execute(stmt);
+
     return true;
 }
 
@@ -8093,7 +8156,12 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
     {
         if (itr->second.wnameLow == wname)
         {
-            WorldDatabase.PExecute("DELETE FROM game_tele WHERE name = '%s'", itr->second.name.c_str());
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
+
+            stmt->setString(0, itr->second.name);
+
+            WorldDatabase.Execute(stmt);
+
             m_GameTeleMap.erase(itr);
             return true;
         }
@@ -8475,16 +8543,26 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outString();
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedcost);
+    vList.AddItem(item, maxcount, incrtime, extendedCost);
 
-    if (savetodb)
-        WorldDatabase.PExecute("INSERT INTO npc_vendor (entry, item, maxcount, incrtime, extendedcost) VALUES('%u', '%u', '%u', '%u', '%u')", entry, item, maxcount, incrtime, extendedcost);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENODR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+        stmt->setUInt8(2, maxcount);
+        stmt->setUInt32(3, incrtime);
+        stmt->setUInt32(4, extendedCost);
+
+        WorldDatabase.Execute(stmt);
+    }
 }
 
-bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
+bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= true*/)
 {
     CacheVendorItemMap::iterator  iter = m_mCacheVendorItemMap.find(entry);
     if (iter == m_mCacheVendorItemMap.end())
@@ -8493,7 +8571,16 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
     if (!iter->second.RemoveItem(item))
         return false;
 
-    if (savetodb) WorldDatabase.PExecute("DELETE FROM npc_vendor WHERE entry='%u' AND item='%u'", entry, item);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+
+        WorldDatabase.Execute(stmt);
+    }
+
     return true;
 }
 
@@ -8660,7 +8747,7 @@ void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)
                 case SCRIPT_COMMAND_TALK:
                 {
                     if (!GetTrinityStringLocale (itrM->second.Talk.TextID))
-                        sLog->outErrorDb("Table `db_script_string` not has string id  %u used db script (ID: %u)", itrM->second.Talk.TextID, itrMM->first);
+                        sLog->outErrorDb("Table `%s` references invalid text id %u from `db_script_string`, script id: %u.", GetScriptsTableNameByType(type).c_str(), itrM->second.Talk.TextID, itrMM->first);
 
                     if (ids.find(itrM->second.Talk.TextID) != ids.end())
                         ids.erase(itrM->second.Talk.TextID);
@@ -8691,7 +8778,7 @@ void ObjectMgr::LoadDbScriptStrings()
 
 bool LoadTrinityStrings(char const* table, int32 start_value, int32 end_value)
 {
-    // MAX_DB_SCRIPT_STRING_ID is max allowed negative value for scripts (scrpts can use only more deep negative values
+    // MAX_DB_SCRIPT_STRING_ID is max allowed negative value for scripts (scripts can use only more deep negative values
     // start/end reversed for negative values
     if (start_value > MAX_DB_SCRIPT_STRING_ID || end_value >= start_value)
     {

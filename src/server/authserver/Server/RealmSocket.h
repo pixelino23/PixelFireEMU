@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -53,7 +53,9 @@ public:
 
     bool send(const char *buf, size_t len);
 
-    const std::string& get_remote_address(void) const;
+    const std::string& getRemoteAddress(void) const;
+
+    const uint16 getRemotePort(void) const;
 
     virtual int open(void *);
 
@@ -71,7 +73,8 @@ private:
 
     ACE_Message_Block input_buffer_;
     Session* session_;
-    std::string remote_address_;
+    std::string _remoteAddress;
+    uint16 _remotePort;
 };
 
 #endif /* __REALMSOCKET_H__ */

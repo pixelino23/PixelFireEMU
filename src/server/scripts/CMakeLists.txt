@@ -41,28 +41,35 @@ source_group(Examples FILES ${sources_Examples})
 source_group(Spells FILES ${sources_Spells})
 source_group(World FILES ${sources_World})
 
-if( USE_SCRIPTPCH AND MSVC )
+ if( USE_SCRIPTPCH AND MSVC )
+  file(GLOB_RECURSE sources_PreHeaders PrecompiledHeaders/ScriptPCH.cpp PrecompiledHeaders/ScriptPCH.h)
+  source_group(PrecompiledHeaders FILES ${sources_PreHeaders})
   set(scripts_STAT_SRCS
-    PrecompiledHeaders/ScriptPCH.cpp
-    PrecompiledHeaders/ScriptPCH.h
+  ${sources_PreHeaders}
   )
-endif()
+ endif()
 
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
-
 include(Commands/CMakeLists.txt)
 
-include(Examples/CMakeLists.txt)
-
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
-  ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
+file(GLOB_RECURSE sources_ScriptedAI 
+  ../game/AI/ScriptedAI/ScriptedEscortAI.cpp 
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
-  ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
-  ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
-)
+  ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp 
+  ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp)
 
+source_group(ScriptedAI FILES ${sources_ScriptedAI})
+  
+ set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${sources_ScriptedAI}
+  )
+
+if(EXAMPLES)
+  include(Examples/CMakeLists.txt)
+ endif()
+ 
 if(SCRIPTS)
   include(Custom/CMakeLists.txt)
   include(World/CMakeLists.txt)
@@ -88,12 +95,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/CountedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Policies
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/collision
@@ -160,7 +165,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Server
   ${CMAKE_SOURCE_DIR}/src/server/game/Server/Packets
   ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol
-  ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol/Handlers
+  ${CMAKE_SOURCE_DIR}/src/server/game/Handlers
   ${CMAKE_SOURCE_DIR}/src/server/game/Skills
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras

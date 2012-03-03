@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -396,7 +396,7 @@ class boss_kaelthas : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!me->HasUnitState(UNIT_STAT_STUNNED) && me->canCreatureAttack(who))
+                if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->canCreatureAttack(who))
                 {
                     if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
@@ -819,7 +819,7 @@ class boss_kaelthas : public CreatureScript
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveIdle();
                                 me->SetPosition(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
-                                me->SendMonsterMove(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0, 0, 0);
+                                me->MonsterMoveWithSpeed(afGravityPos[0], afGravityPos[1], afGravityPos[2], 1);
 
                                 me->InterruptNonMeleeSpells(false);
                                 DoCast(me, SPELL_FULLPOWER);
@@ -885,7 +885,7 @@ class boss_kaelthas : public CreatureScript
                                         me->GetMotionMaster()->Clear();
                                         me->GetMotionMaster()->MoveIdle();
                                         me->SetPosition(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
-                                        me->SendMonsterMove(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0, MOVEMENTFLAG_NONE, 0);
+                                        me->MonsterMoveWithSpeed(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
 
                                         // 1) Kael'thas will portal the whole raid right into his body
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)

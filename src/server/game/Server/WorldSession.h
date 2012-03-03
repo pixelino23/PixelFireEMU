@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -288,6 +288,7 @@ class WorldSession
         void SendTrainerList(uint64 guid, const std::string& strTitle);
         void SendListInventory(uint64 guid);
         void SendShowBank(uint64 guid);
+        void SendShowReforge(uint64 guid);
         void SendTabardVendorActivate(uint64 guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
@@ -587,6 +588,7 @@ class WorldSession
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
         void HandleActivateTaxiExpressOpcode(WorldPacket& recvPacket);
         void HandleMoveSplineDoneOpcode(WorldPacket& recvPacket);
+        void SendActivateTaxiReply(ActivateTaxiReply reply);
 
         void HandleTabardVendorActivateOpcode(WorldPacket& recvPacket);
         void HandleBankerActivateOpcode(WorldPacket& recvPacket);
@@ -797,7 +799,7 @@ class WorldSession
         // Battlefield
         void SendBfInvitePlayerToWar(uint32 BattleId, uint32 ZoneId, uint32 time);
         void SendBfInvitePlayerToQueue(uint32 BattleId);
-        void SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId);
+        void SendBfQueueInviteResponce(uint32 BattleId, uint32 ZoneId);
         void SendBfEntered(uint32 BattleId);
         void SendBfLeaveMessage(uint32 BattleId);
         void HandleBfQueueInviteResponse(WorldPacket &recv_data);
@@ -879,6 +881,7 @@ class WorldSession
         void HandleGuildBankBuyTab(WorldPacket& recv_data);
         void HandleQueryGuildBankTabText(WorldPacket& recv_data);
         void HandleSetGuildBankTabText(WorldPacket& recv_data);
+        void HandleGuildQueryNews(WorldPacket& recv_data);
         void HandleGuildQueryTradeSkill(WorldPacket& recv_data);
 
         // Refer-a-Friend
@@ -980,6 +983,7 @@ class WorldSession
         uint32 recruiterId;
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
+        time_t timeLastWhoCommand;
 };
 #endif
 /// @}

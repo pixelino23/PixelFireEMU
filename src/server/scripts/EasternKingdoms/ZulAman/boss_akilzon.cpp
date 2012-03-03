@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -325,7 +325,7 @@ class boss_akilzon : public CreatureScript
                     if (target)
                     {
                         target->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
-                        target->SendMonsterMove(x, y, me->GetPositionZ()+15, 0);
+                        target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
                     }
                     Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
                     if (Cloud)

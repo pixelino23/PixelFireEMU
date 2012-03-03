@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2010-2011 MigCore <http://wow-mig.ru/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -314,8 +314,8 @@ class spell_halfus_stone_touch : public SpellScriptLoader
             {
                 if (Unit * target = GetTarget())
                 {
-                    target->AddUnitState(UNIT_STAT_STUNNED);
-                    target->ClearUnitState(UNIT_STAT_CASTING);
+                    target->AddUnitState(UNIT_STATE_STUNNED);
+                    target->ClearUnitState(UNIT_STATE_CASTING);
                 }
             }
 
@@ -323,8 +323,8 @@ class spell_halfus_stone_touch : public SpellScriptLoader
             {
                if (Unit* target = GetTarget())
                {
-                   target->ClearUnitState(UNIT_STAT_STUNNED);
-                   target->AddUnitState(UNIT_STAT_CASTING);
+                   target->ClearUnitState(UNIT_STATE_STUNNED);
+                   target->AddUnitState(UNIT_STATE_CASTING);
                }
             }
 

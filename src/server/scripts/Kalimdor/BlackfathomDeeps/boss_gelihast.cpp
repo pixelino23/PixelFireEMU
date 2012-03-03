@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -35,18 +35,18 @@ public:
 
     struct boss_gelihastAI : public ScriptedAI
     {
-        boss_gelihastAI(Creature* c) : ScriptedAI(c)
+        boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiNetTimer;
+        uint32 netTimer;
 
         InstanceScript* instance;
 
         void Reset()
         {
-            uiNetTimer = urand(2000, 4000);
+            netTimer = urand(2000, 4000);
             if (instance)
                 instance->SetData(TYPE_GELIHAST, NOT_STARTED);
         }
@@ -68,11 +68,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiNetTimer < diff)
+            if (netTimer < diff)
             {
                 DoCastVictim(SPELL_NET);
-                uiNetTimer = urand(4000, 7000);
-            } else uiNetTimer -= diff;
+                netTimer = urand(4000, 7000);
+            } else netTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

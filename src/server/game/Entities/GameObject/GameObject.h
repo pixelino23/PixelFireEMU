@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -636,7 +636,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        uint32 GetDBTableGUIDLow() const { return _DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
@@ -675,27 +675,27 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         }
         uint32 GetSpellId() const { return m_spellId;}
 
-        time_t GetRespawnTime() const { return m_respawnTime; }
+        time_t GetRespawnTime() const { return _respawnTime; }
         time_t GetRespawnTimeEx() const
         {
             time_t now = time(NULL);
-            if (m_respawnTime > now)
-                return m_respawnTime;
+            if (_respawnTime > now)
+                return _respawnTime;
             else
                 return now;
         }
 
         void SetRespawnTime(int32 respawn)
         {
-            m_respawnTime = respawn > 0 ? time(NULL) + respawn : 0;
+            _respawnTime = respawn > 0 ? time(NULL) + respawn : 0;
             m_respawnDelayTime = respawn > 0 ? respawn : 0;
         }
         void Respawn();
         bool isSpawned() const
         {
             return m_respawnDelayTime == 0 ||
-                (m_respawnTime > 0 && !m_spawnedByDefault) ||
-                (m_respawnTime == 0 && m_spawnedByDefault);
+                (_respawnTime > 0 && !m_spawnedByDefault) ||
+                (_respawnTime == 0 && m_spawnedByDefault);
         }
         bool isSpawnedByDefault() const { return m_spawnedByDefault; }
         void SetSpawnedByDefault(bool b) { m_spawnedByDefault = b; }
@@ -716,7 +716,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Use(Unit* user);
 
         LootState getLootState() const { return m_lootState; }
-        void SetLootState(LootState s) { m_lootState = s; }
+        // Note: unit is only used when s = GO_ACTIVATED
+        void SetLootState(LootState s, Unit* unit = NULL);
 
         uint16 GetLootMode() { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
@@ -744,19 +745,19 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         Loot        loot;
 
-        uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
+        uint32 _groupLootTimer;                            // (msecs)timer used for group loot
         uint32 lootingGroupLowGUID;                         // used to find group which is looting
 
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
         bool ActivateToQuest(Player* target) const;
-        void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false);
+        void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = NULL);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
-        bool isAlwaysVisibleFor(WorldObject const* seer) const;
+        bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsInvisibleDueToDespawn() const;
 
         uint8 getLevelForTarget(WorldObject const* target) const
@@ -795,7 +796,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;
-        time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
+        time_t      _respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
         uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer
         LootState   m_lootState;
         bool        m_spawnedByDefault;
@@ -810,7 +811,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         typedef std::map<uint32, uint64> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        uint32 _DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;

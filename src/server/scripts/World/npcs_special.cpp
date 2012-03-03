@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -40,6 +40,7 @@ npc_sayge               100%    Darkmoon event fortune teller, buff player based
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
 npc_locksmith            75%    list of keys needs to be confirmed
+npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -65,7 +66,7 @@ struct SpawnAssociation
     SpawnType spawnType;
 };
 
-enum eEnums
+enum AirforceBot
 {
     SPELL_GUARDS_MARK               = 38067,
     AURA_DURATION_TIME_LEFT         = 5000
@@ -76,32 +77,32 @@ float const RANGE_GUARDS_MARK       = 50.0f;
 
 SpawnAssociation spawnAssociations[] =
 {
-    {2614,  15241, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Alliance)
-    {2615,  15242, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Horde)
-    {21974, 21976, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Area 52)
-    {21993, 15242, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Horde - Bat Rider)
-    {21996, 15241, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Alliance - Gryphon)
-    {21997, 21976, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Goblin - Area 52 - Zeppelin)
-    {21999, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Alliance)
-    {22001, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Horde)
-    {22002, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Ground (Horde)
-    {22003, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Ground (Alliance)
-    {22063, 21976, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Goblin - Area 52)
-    {22065, 22064, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Ethereal - Stormspire)
-    {22066, 22067, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Scryer - Dragonhawk)
-    {22068, 22064, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Ethereal - Stormspire)
-    {22069, 22064, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Stormspire)
-    {22070, 22067, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Scryer)
-    {22071, 22067, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Scryer)
-    {22078, 22077, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Aldor)
-    {22079, 22077, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Aldor - Gryphon)
-    {22080, 22077, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Aldor)
-    {22086, 22085, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Sporeggar)
-    {22087, 22085, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Sporeggar - Spore Bat)
-    {22088, 22085, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Sporeggar)
-    {22090, 22089, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Toshley's Station - Flying Machine)
-    {22124, 22122, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Cenarion)
-    {22125, 22122, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Cenarion - Stormcrow)
+    {2614,  15241, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Alliance)
+    {2615,  15242, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Horde)
+    {21974, 21976, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Area 52)
+    {21993, 15242, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Horde - Bat Rider)
+    {21996, 15241, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Alliance - Gryphon)
+    {21997, 21976, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Goblin - Area 52 - Zeppelin)
+    {21999, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Alliance)
+    {22001, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Horde)
+    {22002, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Ground (Horde)
+    {22003, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Ground (Alliance)
+    {22063, 21976, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Goblin - Area 52)
+    {22065, 22064, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Ethereal - Stormspire)
+    {22066, 22067, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Scryer - Dragonhawk)
+    {22068, 22064, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Ethereal - Stormspire)
+    {22069, 22064, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Stormspire)
+    {22070, 22067, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Scryer)
+    {22071, 22067, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Scryer)
+    {22078, 22077, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Aldor)
+    {22079, 22077, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Aldor - Gryphon)
+    {22080, 22077, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Aldor)
+    {22086, 22085, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Sporeggar)
+    {22087, 22085, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Sporeggar - Spore Bat)
+    {22088, 22085, SPAWNTYPE_TRIPWIRE_ROOFTOP},            //Air Force Trip Wire - Rooftop (Sporeggar)
+    {22090, 22089, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Toshley's Station - Flying Machine)
+    {22124, 22122, SPAWNTYPE_ALARMBOT},                    //Air Force Alarm Bot (Cenarion)
+    {22125, 22122, SPAWNTYPE_ALARMBOT},                    //Air Force Guard Post (Cenarion - Stormcrow)
     {22126, 22122, SPAWNTYPE_ALARMBOT}                      //Air Force Trip Wire - Rooftop (Cenarion Expedition)
 };
 
@@ -260,7 +261,7 @@ public:
 ## npc_lunaclaw_spirit
 ######*/
 
-enum
+enum Lunaclaw
 {
     QUEST_BODY_HEART_A      = 6001,
     QUEST_BODY_HEART_H      = 6002,
@@ -301,12 +302,15 @@ public:
 # npc_chicken_cluck
 #########*/
 
-#define EMOTE_HELLO         -1070004
-#define EMOTE_CLUCK_TEXT    -1070006
+enum Cluck
+{
+    EMOTE_HELLO         = -1070004,
+    EMOTE_CLUCK_TEXT    = -1070006,
 
-#define QUEST_CLUCK         3861
-#define FACTION_FRIENDLY    35
-#define FACTION_CHICKEN     31
+    QUEST_CLUCK         = 3861,
+    FACTION_FRIENDLY    = 35,
+    FACTION_CHICKEN     = 31
+};
 
 class npc_chicken_cluck : public CreatureScript
 {
@@ -396,9 +400,12 @@ public:
 ## npc_dancing_flames
 ######*/
 
-#define SPELL_BRAZIER       45423
-#define SPELL_SEDUCTION     47057
-#define SPELL_FIERY_AURA    45427
+enum Dancingflames
+{
+    SPELL_BRAZIER       = 45423,
+    SPELL_SEDUCTION     = 47057,
+    SPELL_FIERY_AURA    = 45427
+};
 
 class npc_dancing_flames : public CreatureScript
 {
@@ -485,18 +492,21 @@ public:
 };
 
 /*######
-## Triage quest
+## Triage quest (Signed for 9623)
 ######*/
 
-//signed for 9623
-#define SAY_DOC1    -1000201
-#define SAY_DOC2    -1000202
-#define SAY_DOC3    -1000203
+enum Triage
+{
+    SAY_DOC1            = -1000201,
+    SAY_DOC2            = -1000202,
+    SAY_DOC3            = -1000203,
 
-#define DOCTOR_ALLIANCE     12939
-#define DOCTOR_HORDE        12920
-#define ALLIANCE_COORDS     7
-#define HORDE_COORDS        6
+    DOCTOR_ALLIANCE     = 12939,
+    DOCTOR_HORDE        = 12920,
+
+    ALLIANCE_COORDS     = 7,
+    HORDE_COORDS        = 6
+};
 
 struct Location
 {
@@ -505,13 +515,13 @@ struct Location
 
 static Location AllianceCoords[]=
 {
-    {-3757.38f, -4533.05f, 14.16f, 3.62f},                      // Top-far-right bunk as seen from entrance
-    {-3754.36f, -4539.13f, 14.16f, 5.13f},                      // Top-far-left bunk
-    {-3749.54f, -4540.25f, 14.28f, 3.34f},                      // Far-right bunk
-    {-3742.10f, -4536.85f, 14.28f, 3.64f},                      // Right bunk near entrance
-    {-3755.89f, -4529.07f, 14.05f, 0.57f},                      // Far-left bunk
-    {-3749.51f, -4527.08f, 14.07f, 5.26f},                      // Mid-left bunk
-    {-3746.37f, -4525.35f, 14.16f, 5.22f},                      // Left bunk near entrance
+    {-3757.38f, -4533.05f, 14.16f, 3.62f},                     // Top-far-right bunk as seen from entrance
+    {-3754.36f, -4539.13f, 14.16f, 5.13f},                     // Top-far-left bunk
+    {-3749.54f, -4540.25f, 14.28f, 3.34f},                     // Far-right bunk
+    {-3742.10f, -4536.85f, 14.28f, 3.64f},                     // Right bunk near entrance
+    {-3755.89f, -4529.07f, 14.05f, 0.57f},                     // Far-left bunk
+    {-3749.51f, -4527.08f, 14.07f, 5.26f},                     // Mid-left bunk
+    {-3746.37f, -4525.35f, 14.16f, 5.22f},                     // Left bunk near entrance
 };
 
 //alliance run to where
@@ -521,11 +531,11 @@ static Location AllianceCoords[]=
 
 static Location HordeCoords[]=
 {
-    {-1013.75f, -3492.59f, 62.62f, 4.34f},                      // Left, Behind
-    {-1017.72f, -3490.92f, 62.62f, 4.34f},                      // Right, Behind
-    {-1015.77f, -3497.15f, 62.82f, 4.34f},                      // Left, Mid
-    {-1019.51f, -3495.49f, 62.82f, 4.34f},                      // Right, Mid
-    {-1017.25f, -3500.85f, 62.98f, 4.34f},                      // Left, front
+    {-1013.75f, -3492.59f, 62.62f, 4.34f},                     // Left, Behind
+    {-1017.72f, -3490.92f, 62.62f, 4.34f},                     // Right, Behind
+    {-1015.77f, -3497.15f, 62.82f, 4.34f},                     // Left, Mid
+    {-1019.51f, -3495.49f, 62.82f, 4.34f},                     // Right, Mid
+    {-1017.25f, -3500.85f, 62.98f, 4.34f},                     // Left, front
     {-1020.95f, -3499.21f, 62.98f, 4.34f}                       // Right, Front
 };
 
@@ -551,6 +561,7 @@ uint32 const HordeSoldierId[3] =
 /*######
 ## npc_doctor (handles both Gustaf Vanhowzen and Gregory Victor)
 ######*/
+
 class npc_doctor : public CreatureScript
 {
 public:
@@ -867,7 +878,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
 
 //TODO: get text for each NPC
 
-enum eGarments
+enum Garments
 {
     SPELL_LESSER_HEAL_R2    = 2052,
     SPELL_FORTITUDE_R1      = 1243,
@@ -905,7 +916,7 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        npc_garments_of_questsAI(Creature* c) : npc_escortAI(c) {Reset();}
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
 
         uint64 CasterGUID;
 
@@ -1096,7 +1107,10 @@ public:
 ## npc_guardian
 ######*/
 
-#define SPELL_DEATHTOUCH                5
+enum GuardianSpells
+{
+    SPELL_DEATHTOUCH       = 5
+};
 
 class npc_guardian : public CreatureScript
 {
@@ -1139,7 +1153,7 @@ public:
 ## npc_kingdom_of_dalaran_quests
 ######*/
 
-enum eKingdomDalaran
+enum KingdomDalaran
 {
     SPELL_TELEPORT_DALARAN  = 53360,
     ITEM_KT_SIGNET          = 39740,
@@ -1358,17 +1372,20 @@ public:
 ## npc_sayge
 ######*/
 
-#define SPELL_DMG       23768                               //dmg
-#define SPELL_RES       23769                               //res
-#define SPELL_ARM       23767                               //arm
-#define SPELL_SPI       23738                               //spi
-#define SPELL_INT       23766                               //int
-#define SPELL_STM       23737                               //stm
-#define SPELL_STR       23735                               //str
-#define SPELL_AGI       23736                               //agi
-#define SPELL_FORTUNE   23765                               //faire fortune
+enum Sayge
+{
+    SPELL_DMG       = 23768,    // damage
+    SPELL_RES       = 23769,    // Resistance
+    SPELL_ARM       = 23767,    // armor
+    SPELL_SPI       = 23738,    // spirit
+    SPELL_INT       = 23766,    // intellect
+    SPELL_STM       = 23737,    // stamina
+    SPELL_STR       = 23735,    // strength
+    SPELL_AGI       = 23736,    // agility
+    SPELL_FORTUNE   = 23765     // faire fortune
+};
 
-#define GOSSIP_HELLO_SAYGE  "Yes"
+#define GOSSIP_HELLO_SAYGE          "Yes"
 #define GOSSIP_SENDACTION_SAYGE1    "Slay the Man"
 #define GOSSIP_SENDACTION_SAYGE2    "Turn him over to liege"
 #define GOSSIP_SENDACTION_SAYGE3    "Confiscate the corn"
@@ -1514,6 +1531,13 @@ public:
     }
 };
 
+// Steam Tonk
+
+enum Tonk
+{
+    SPELL_TONK_MINE_DETONATE  = 25099
+};
+
 class npc_steam_tonk : public CreatureScript
 {
 public:
@@ -1546,8 +1570,6 @@ public:
         return new npc_steam_tonkAI(creature);
     }
 };
-
-#define SPELL_TONK_MINE_DETONATE 25099
 
 class npc_tonk_mine : public CreatureScript
 {
@@ -1665,15 +1687,16 @@ class npc_winter_reveler : public CreatureScript
 /*####
 ## npc_snake_trap_serpents
 ####*/
+enum TrapSpells
+{
+    SPELL_MIND_NUMBING_POISON    = 25810,   //Viper
+    SPELL_DEADLY_POISON          = 34655,   //Venomous Snake
+    SPELL_CRIPPLING_POISON       = 30981,   //Viper
+    NPC_VIPER                    = 19921
+};
 
-#define SPELL_MIND_NUMBING_POISON    25810   //Viper
-#define SPELL_DEADLY_POISON          34655   //Venomous Snake
-#define SPELL_CRIPPLING_POISON       30981   //Viper
-
-#define VENOMOUS_SNAKE_TIMER 1500
-#define VIPER_TIMER 3000
-
-#define C_VIPER 19921
+#define VENOMOUS_SNAKE_TIMER   1500;
+#define VIPER_TIMER            3000;
 
 class npc_snake_trap : public CreatureScript
 {
@@ -1693,9 +1716,9 @@ public:
         {
             SpellTimer = 0;
 
-            CreatureTemplate const* Info = me->GetCreatureInfo();
+            CreatureTemplate const* Info = me->GetCreatureTemplate();
 
-            IsViper = Info->Entry == C_VIPER ? true : false;
+            IsViper = Info->Entry == NPC_VIPER ? true : false;
 
             me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
             //Add delta to make them not all hit the same time
@@ -1736,6 +1759,12 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+            {
+                me->InterruptNonMeleeSpells(false);
+                return;
+            }
+
             if (SpellTimer <= diff)
             {
                 if (IsViper) //Viper
@@ -1773,6 +1802,7 @@ public:
     }
 };
 
+// Mob Mojo
 #define SAY_RANDOM_MOJO0    "Now that's what I call froggy-style!"
 #define SAY_RANDOM_MOJO1    "Your lily pad or mine?"
 #define SAY_RANDOM_MOJO2    "This won't take long, did it?"
@@ -1876,6 +1906,7 @@ public:
     }
 };
 
+// Mirror Image
 class npc_mirror_image : public CreatureScript
 {
 public:
@@ -1908,7 +1939,7 @@ public:
             Unit* owner = me->GetCharmerOrOwner();
 
             me->CombatStop(true);
-            if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW))
+            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
             {
                 me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
@@ -1922,6 +1953,7 @@ public:
     }
 };
 
+// ebon gargoyle
 class npc_ebon_gargoyle : public CreatureScript
 {
 public:
@@ -2012,6 +2044,7 @@ public:
     }
 };
 
+// Light Well
 class npc_lightwell : public CreatureScript
 {
 public:
@@ -2043,6 +2076,7 @@ public:
     }
 };
 
+// Training dummy
 enum eTrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
@@ -2067,7 +2101,7 @@ public:
 
         void Reset()
         {
-            me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
             ResetTimer = 5000;
@@ -2099,8 +2133,8 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->HasUnitState(UNIT_STAT_STUNNED))
-                me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
             if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
             {
@@ -2133,8 +2167,13 @@ public:
 /*######
 # npc_shadowfiend
 ######*/
-#define GLYPH_OF_SHADOWFIEND_MANA         58227
-#define GLYPH_OF_SHADOWFIEND              58228
+
+enum Shadowfiend
+{
+    MANA_LEECH                       = 28305,
+    GLYPH_OF_SHADOWFIEND_MANA        = 58227,
+    GLYPH_OF_SHADOWFIEND             = 58228
+};
 
 class npc_shadowfiend : public CreatureScript
 {
@@ -2144,6 +2183,14 @@ public:
     struct npc_shadowfiendAI : public ScriptedAI
     {
         npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            if (me->isSummon())
+                if (Unit* owner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* pet = owner->GetGuardianPet())
+                        pet->CastSpell(pet, MANA_LEECH, true);
+        }
 
         void DamageTaken(Unit* /*killer*/, uint32& damage)
         {
@@ -2178,7 +2225,7 @@ public:
 #define GOSSIP_ENGINEERING4   "Icecrown."
 #define GOSSIP_ENGINEERING5   "Storm Peaks."
 
-enum eWormhole
+enum Wormhole
 {
     SPELL_HOWLING_FJORD         = 67838,
     SPELL_SHOLAZAR_BASIN        = 67835,
@@ -2250,7 +2297,7 @@ public:
 ## npc_pet_trainer
 ######*/
 
-enum ePetTrainer
+enum PetTrainer
 {
     TEXT_ISHUNTER               = 5838,
     TEXT_NOTHUNTER              = 5839,
@@ -2314,7 +2361,7 @@ public:
 ## npc_locksmith
 ######*/
 
-enum eLockSmith
+enum LockSmith
 {
     QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ = 10704,
     QUEST_DARK_IRON_LEGACY                = 3802,
@@ -2423,7 +2470,7 @@ public:
 ## npc_tabard_vendor
 ######*/
 
-enum
+enum TabardVendor
 {
     QUEST_TRUE_MASTERS_OF_LIGHT = 9737,
     QUEST_THE_UNWRITTEN_PROPHECY = 9762,
@@ -2648,6 +2695,285 @@ public:
     }
 };
 
+enum Fireworks
+{
+    NPC_OMEN                = 15467,
+    NPC_MINION_OF_OMEN      = 15466,
+    NPC_FIREWORK_BLUE       = 15879,
+    NPC_FIREWORK_GREEN      = 15880,
+    NPC_FIREWORK_PURPLE     = 15881,
+    NPC_FIREWORK_RED        = 15882,
+    NPC_FIREWORK_YELLOW     = 15883,
+    NPC_FIREWORK_WHITE      = 15884,
+    NPC_FIREWORK_BIG_BLUE   = 15885,
+    NPC_FIREWORK_BIG_GREEN  = 15886,
+    NPC_FIREWORK_BIG_PURPLE = 15887,
+    NPC_FIREWORK_BIG_RED    = 15888,
+    NPC_FIREWORK_BIG_YELLOW = 15889,
+    NPC_FIREWORK_BIG_WHITE  = 15890,
+
+    NPC_CLUSTER_BLUE        = 15872,
+    NPC_CLUSTER_RED         = 15873,
+    NPC_CLUSTER_GREEN       = 15874,
+    NPC_CLUSTER_PURPLE      = 15875,
+    NPC_CLUSTER_WHITE       = 15876,
+    NPC_CLUSTER_YELLOW      = 15877,
+    NPC_CLUSTER_BIG_BLUE    = 15911,
+    NPC_CLUSTER_BIG_GREEN   = 15912,
+    NPC_CLUSTER_BIG_PURPLE  = 15913,
+    NPC_CLUSTER_BIG_RED     = 15914,
+    NPC_CLUSTER_BIG_WHITE   = 15915,
+    NPC_CLUSTER_BIG_YELLOW  = 15916,
+    NPC_CLUSTER_ELUNE       = 15918,
+
+    GO_FIREWORK_LAUNCHER_1  = 180771,
+    GO_FIREWORK_LAUNCHER_2  = 180868,
+    GO_FIREWORK_LAUNCHER_3  = 180850,
+    GO_CLUSTER_LAUNCHER_1   = 180772,
+    GO_CLUSTER_LAUNCHER_2   = 180859,
+    GO_CLUSTER_LAUNCHER_3   = 180869,
+    GO_CLUSTER_LAUNCHER_4   = 180874,
+
+    SPELL_ROCKET_BLUE       = 26344,
+    SPELL_ROCKET_GREEN      = 26345,
+    SPELL_ROCKET_PURPLE     = 26346,
+    SPELL_ROCKET_RED        = 26347,
+    SPELL_ROCKET_WHITE      = 26348,
+    SPELL_ROCKET_YELLOW     = 26349,
+    SPELL_ROCKET_BIG_BLUE   = 26351,
+    SPELL_ROCKET_BIG_GREEN  = 26352,
+    SPELL_ROCKET_BIG_PURPLE = 26353,
+    SPELL_ROCKET_BIG_RED    = 26354,
+    SPELL_ROCKET_BIG_WHITE  = 26355,
+    SPELL_ROCKET_BIG_YELLOW = 26356,
+    SPELL_LUNAR_FORTUNE     = 26522,
+
+    ANIM_GO_LAUNCH_FIREWORK = 3,
+    ZONE_MOONGLADE          = 493,
+};
+
+Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};
+
+class npc_firework : public CreatureScript
+{
+public:
+    npc_firework() : CreatureScript("npc_firework") { }
+
+    struct npc_fireworkAI : public ScriptedAI
+    {
+        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) {}
+
+        bool isCluster()
+        {
+            switch (me->GetEntry())
+            {
+                case NPC_FIREWORK_BLUE:
+                case NPC_FIREWORK_GREEN:
+                case NPC_FIREWORK_PURPLE:
+                case NPC_FIREWORK_RED:
+                case NPC_FIREWORK_YELLOW:
+                case NPC_FIREWORK_WHITE:
+                case NPC_FIREWORK_BIG_BLUE:
+                case NPC_FIREWORK_BIG_GREEN:
+                case NPC_FIREWORK_BIG_PURPLE:
+                case NPC_FIREWORK_BIG_RED:
+                case NPC_FIREWORK_BIG_YELLOW:
+                case NPC_FIREWORK_BIG_WHITE:
+                    return false;
+                case NPC_CLUSTER_BLUE:
+                case NPC_CLUSTER_GREEN:
+                case NPC_CLUSTER_PURPLE:
+                case NPC_CLUSTER_RED:
+                case NPC_CLUSTER_YELLOW:
+                case NPC_CLUSTER_WHITE:
+                case NPC_CLUSTER_BIG_BLUE:
+                case NPC_CLUSTER_BIG_GREEN:
+                case NPC_CLUSTER_BIG_PURPLE:
+                case NPC_CLUSTER_BIG_RED:
+                case NPC_CLUSTER_BIG_YELLOW:
+                case NPC_CLUSTER_BIG_WHITE:
+                case NPC_CLUSTER_ELUNE:
+                default:
+                    return true;
+            }
+        }
+
+        GameObject* FindNearestLauncher()
+        {
+            GameObject* launcher = NULL;
+
+            if (isCluster())
+            {
+                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_1, 0.5f);
+                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_2, 0.5f);
+                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_3, 0.5f);
+                GameObject* launcher4 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_4, 0.5f);
+
+                if (launcher1)
+                    launcher = launcher1;
+                else if (launcher2)
+                    launcher = launcher2;
+                else if (launcher3)
+                    launcher = launcher3;
+                else if (launcher4)
+                    launcher = launcher4;
+            }
+            else
+            {
+                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_1, 0.5f);
+                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_2, 0.5f);
+                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_3, 0.5f);
+
+                if (launcher1)
+                    launcher = launcher1;
+                else if (launcher2)
+                    launcher = launcher2;
+                else if (launcher3)
+                    launcher = launcher3;
+            }
+
+            return launcher;
+        }
+
+        uint32 GetFireworkSpell(uint32 entry)
+        {
+            switch (entry)
+            {
+                case NPC_FIREWORK_BLUE:
+                    return SPELL_ROCKET_BLUE;
+                case NPC_FIREWORK_GREEN:
+                    return SPELL_ROCKET_GREEN;
+                case NPC_FIREWORK_PURPLE:
+                    return SPELL_ROCKET_PURPLE;
+                case NPC_FIREWORK_RED:
+                    return SPELL_ROCKET_RED;
+                case NPC_FIREWORK_YELLOW:
+                    return SPELL_ROCKET_YELLOW;
+                case NPC_FIREWORK_WHITE:
+                    return SPELL_ROCKET_WHITE;
+                case NPC_FIREWORK_BIG_BLUE:
+                    return SPELL_ROCKET_BIG_BLUE;
+                case NPC_FIREWORK_BIG_GREEN:
+                    return SPELL_ROCKET_BIG_GREEN;
+                case NPC_FIREWORK_BIG_PURPLE:
+                    return SPELL_ROCKET_BIG_PURPLE;
+                case NPC_FIREWORK_BIG_RED:
+                    return SPELL_ROCKET_BIG_RED;
+                case NPC_FIREWORK_BIG_YELLOW:
+                    return SPELL_ROCKET_BIG_YELLOW;
+                case NPC_FIREWORK_BIG_WHITE:
+                    return SPELL_ROCKET_BIG_WHITE;
+                default:
+                    return 0;
+            }
+        }
+
+        uint32 GetFireworkGameObjectId()
+        {
+            uint32 spellId = 0;
+
+            switch (me->GetEntry())
+            {
+                case NPC_CLUSTER_BLUE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BLUE);
+                    break;
+                case NPC_CLUSTER_GREEN:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_GREEN);
+                    break;
+                case NPC_CLUSTER_PURPLE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_PURPLE);
+                    break;
+                case NPC_CLUSTER_RED:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_RED);
+                    break;
+                case NPC_CLUSTER_YELLOW:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_YELLOW);
+                    break;
+                case NPC_CLUSTER_WHITE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_WHITE);
+                    break;
+                case NPC_CLUSTER_BIG_BLUE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_BLUE);
+                    break;
+                case NPC_CLUSTER_BIG_GREEN:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_GREEN);
+                    break;
+                case NPC_CLUSTER_BIG_PURPLE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_PURPLE);
+                    break;
+                case NPC_CLUSTER_BIG_RED:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_RED);
+                    break;
+                case NPC_CLUSTER_BIG_YELLOW:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_YELLOW);
+                    break;
+                case NPC_CLUSTER_BIG_WHITE:
+                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_WHITE);
+                    break;
+                case NPC_CLUSTER_ELUNE:
+                    spellId = GetFireworkSpell(urand(NPC_FIREWORK_BLUE, NPC_FIREWORK_WHITE));
+                    break;
+            }
+
+            const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+
+            if (spellInfo && spellInfo->Effects[0].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                return spellInfo->Effects[0].MiscValue;
+
+            return 0;
+        }
+
+        void Reset()
+        {
+            if (GameObject* launcher = FindNearestLauncher())
+            {
+                launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
+                me->SetOrientation(launcher->GetOrientation() + M_PI/2);
+            }
+            else
+                return;
+
+            if (isCluster())
+            {
+                // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
+                if (me->GetZoneId() == ZONE_MOONGLADE)
+                {
+                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f, false) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
+                    {
+                        switch (urand(0,9))
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                                    minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
+                                break;
+                            case 9:
+                                me->SummonCreature(NPC_OMEN, omenSummonPos);
+                                break;
+                        }
+                    }
+                }
+                if (me->GetEntry() == NPC_CLUSTER_ELUNE)
+                    DoCast(SPELL_LUNAR_FORTUNE);
+
+                float displacement = 0.7f;
+                for (uint8 i = 0; i < 4; i++)
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i%2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 1);
+            }
+            else
+                //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
+                me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), GetFireworkSpell(me->GetEntry()), true);
+        }
+    };
+
+    CreatureAI *GetAI(Creature* creature) const
+    {
+        return new npc_fireworkAI(creature);
+    }
+};
+
 // Uncomment this once guardians are able to cast spells
 // on owner at AI initialization and be able to cast spells based on owner's triggered spellcasts.
 
@@ -2684,7 +3010,7 @@ public:
             {
                 me->SetUnitMovementFlags(MOVEMENTFLAG_ROOT);
                 me->SetReactState(REACT_PASSIVE);
-                me->CastSpell(owner,SPELL_ANCIENT_GUARDIAN_VISUAL,true);
+                me->CastSpell(owner, SPELL_ANCIENT_GUARDIAN_VISUAL, true);
             }
         }
 
@@ -2724,8 +3050,7 @@ public:
     }
 };
 
-/* Power Word Barrier */
-
+// Power Word Barrier
 class npc_power_word_barrier : public CreatureScript
 {
     public:
@@ -2833,6 +3158,7 @@ void AddSC_npcs_special()
     new npc_locksmith;
     new npc_tabard_vendor;
     new npc_experience;
+    new npc_firework;
     new npc_guardian_of_ancient_kings;
     new npc_power_word_barrier;
 }

@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -66,10 +66,10 @@ static Location AkamaWP[]=
 
 static Location BrokenCoords[]=
 {
-    {541.375916f, 401.439575f, M_PI, 112.783997f},             // The place where Akama channels
-    {534.130005f, 352.394531f, 2.164150f, 112.783737f},         // Behind a 'pillar' which is behind the east alcove
-    {499.621185f, 341.534729f, 1.652856f, 112.783730f},         // East Alcove
-    {499.151093f, 461.036438f, 4.770888f, 112.78370f},          // West Alcove
+    {541.375916f, 401.439575f, M_PI, 112.783997f},            // The place where Akama channels
+    {534.130005f, 352.394531f, 2.164150f, 112.783737f},        // Behind a 'pillar' which is behind the east alcove
+    {499.621185f, 341.534729f, 1.652856f, 112.783730f},        // East Alcove
+    {499.151093f, 461.036438f, 4.770888f, 112.78370f},         // West Alcove
 };
 
 static Location BrokenWP[]=

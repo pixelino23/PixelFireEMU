@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -124,6 +124,12 @@ void GuildMgr::LoadGuilds()
                     delete guild;
                     continue;
                 }
+                QueryResult guildNews = CharacterDatabase.PQuery("SELECT type, date, value1, value2, source_guid, flags FROM guild_news WHERE guildid = %u ORDER BY date DESC", guild->GetId());
+                if (guildNews)
+                {
+                    Field* fields = guildNews->Fetch();
+                    guild->LoadGuildNewsFromDB(fields);
+                }
                 AddGuild(guild);
 
                 ++count;
@@ -187,8 +193,8 @@ void GuildMgr::LoadGuilds()
                                                      "BankResetTimeTab3, BankRemSlotsTab3, BankResetTimeTab4, BankRemSlotsTab4, BankResetTimeTab5, BankRemSlotsTab5, "
                                                      //   19                 20                21                 22
                                                      "BankResetTimeTab6, BankRemSlotsTab6, BankResetTimeTab7, BankRemSlotsTab7, "
-                                                     //   23      24       25       26      27         28
-                                                     "c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                     //   23      24       25       26      27         28               29               30               31               32                33                34
+                                                     "c.name, c.level, c.class, c.zone, c.account, c.logout_time, FirstProffLevel, FirstProffSkill, FirstProffRank, SecondProffLevel, SecondProffSkill, SecondProffRank "
                                                      "FROM guild_member gm LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
 
         if (!result)

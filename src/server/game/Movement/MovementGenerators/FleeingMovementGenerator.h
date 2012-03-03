@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -21,8 +21,6 @@
 #define TRINITY_FLEEINGMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "DestinationHolder.h"
-#include "Traveller.h"
 
 template<class T>
 class FleeingMovementGenerator
@@ -34,8 +32,7 @@ class FleeingMovementGenerator
         void Initialize(T &);
         void Finalize(T &);
         void Reset(T &);
-        bool Update(T &, const uint32);
-        bool GetDestination(float &x, float &y, float &z) const;
+        bool Update(T &, const uint32 &);
 
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
 
@@ -57,8 +54,6 @@ class FleeingMovementGenerator
         float i_cur_angle;
         uint64 i_frightGUID;
         TimeTracker i_nextCheckTime;
-
-        DestinationHolder< Traveller<T> > i_destinationHolder;
 };
 
 class TimedFleeingMovementGenerator
@@ -70,7 +65,7 @@ class TimedFleeingMovementGenerator
             i_totalFleeTime(time) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
-        bool Update(Unit &, const uint32);
+        bool Update(Unit &, const uint32&);
         void Finalize(Unit &);
 
     private:
@@ -78,3 +73,4 @@ class TimedFleeingMovementGenerator
 };
 
 #endif
+

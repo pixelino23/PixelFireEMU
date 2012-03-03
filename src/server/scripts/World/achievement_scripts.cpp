@@ -1,9 +1,10 @@
 /*
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -285,6 +286,34 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
         }
 };
 
+enum ArgentTournamentAreas
+{
+    AREA_ARGENT_TOURNAMENT_FIELDS  = 4658,
+    AREA_RING_OF_ASPIRANTS         = 4670,
+    AREA_RING_OF_ARGENT_VALIANTS   = 4671,
+    AREA_RING_OF_ALLIANCE_VALIANTS = 4672,
+    AREA_RING_OF_HORDE_VALIANTS    = 4673,
+    AREA_RING_OF_CHAMPIONS         = 4669,
+};
+
+class achievement_tilted : public AchievementCriteriaScript
+{
+    public:
+        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            bool checkArea = player->GetAreaId() == AREA_ARGENT_TOURNAMENT_FIELDS ||
+                                player->GetAreaId() == AREA_RING_OF_ASPIRANTS ||
+                                player->GetAreaId() == AREA_RING_OF_ARGENT_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_ALLIANCE_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
+                                player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
+
+            return player && checkArea && player->duel && player->duel->isMounted;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -302,4 +331,5 @@ void AddSC_achievement_scripts()
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
     new achievement_bg_sa_defense_of_ancients();
+    new achievement_tilted();
 }

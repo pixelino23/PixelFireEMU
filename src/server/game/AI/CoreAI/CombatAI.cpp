@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -64,8 +64,8 @@ int VehicleAI::Permissible(const Creature* /*creature*/)
 void CombatAI::InitializeAI()
 {
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        if (me->m_spells[i] && sSpellMgr->GetSpellInfo(me->m_spells[i]))
-            spells.push_back(me->m_spells[i]);
+        if (me->_spells[i] && sSpellMgr->GetSpellInfo(me->_spells[i]))
+            spells.push_back(me->_spells[i]);
 
     CreatureAI::InitializeAI();
 }
@@ -100,7 +100,13 @@ void CombatAI::UpdateAI(const uint32 diff)
 
     events.Update(diff);
 
-    if (me->HasUnitState(UNIT_STAT_CASTING))
+    if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+    {
+        me->InterruptNonMeleeSpells(false);
+        return;
+    }
+
+    if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
     if (uint32 spellId = events.ExecuteEvent())
@@ -159,7 +165,13 @@ void CasterAI::UpdateAI(const uint32 diff)
 
     events.Update(diff);
 
-    if (me->HasUnitState(UNIT_STAT_CASTING))
+    if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+    {
+        me->InterruptNonMeleeSpells(false);
+        return;
+    }
+
+    if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
     if (uint32 spellId = events.ExecuteEvent())
@@ -176,16 +188,16 @@ void CasterAI::UpdateAI(const uint32 diff)
 
 ArcherAI::ArcherAI(Creature* c) : CreatureAI(c)
 {
-    if (!me->m_spells[0])
+    if (!me->_spells[0])
         sLog->outError("ArcherAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->_spells[0]);
     m_minRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
 
     if (!m_minRange)
         m_minRange = MELEE_RANGE;
-    me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
+    me->_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
+    me->_SightDistance = me->_CombatDistance;
 }
 
 void ArcherAI::AttackStart(Unit* who)
@@ -201,7 +213,7 @@ void ArcherAI::AttackStart(Unit* who)
     else
     {
         if (me->Attack(who, false) && !who->IsFlying())
-            me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
+            me->GetMotionMaster()->MoveChase(who, me->_CombatDistance);
     }
 
     if (who->IsFlying())
@@ -214,7 +226,7 @@ void ArcherAI::UpdateAI(const uint32 /*diff*/)
         return;
 
     if (!me->IsWithinCombatRange(me->getVictim(), m_minRange))
-        DoSpellAttackIfReady(me->m_spells[0]);
+        DoSpellAttackIfReady(me->_spells[0]);
     else
         DoMeleeAttackIfReady();
 }
@@ -225,19 +237,19 @@ void ArcherAI::UpdateAI(const uint32 /*diff*/)
 
 TurretAI::TurretAI(Creature* c) : CreatureAI(c)
 {
-    if (!me->m_spells[0])
+    if (!me->_spells[0])
         sLog->outError("TurretAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->_spells[0]);
     m_minRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
-    me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
+    me->_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
+    me->_SightDistance = me->_CombatDistance;
 }
 
 bool TurretAI::CanAIAttack(const Unit* /*who*/) const
 {
     // TODO: use one function to replace it
-    if (!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
+    if (!me->IsWithinCombatRange(me->getVictim(), me->_CombatDistance)
         || (m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange)))
         return false;
     return true;
@@ -254,7 +266,7 @@ void TurretAI::UpdateAI(const uint32 /*diff*/)
     if (!UpdateVictim())
         return;
 
-    DoSpellAttackIfReady(me->m_spells[0]);
+    DoSpellAttackIfReady(me->_spells[0]);
 }
 
 //////////////
@@ -321,7 +333,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
                 {
                     if (Player* player = passenger->ToPlayer())
                     {
-                        if (!sConditionMgr->IsPlayerMeetToConditions(player, conditions))
+                        if (!sConditionMgr->IsObjectMeetToConditions(player, me, conditions))
                         {
                             player->ExitVehicle();
                             return;//check other pessanger in next tick

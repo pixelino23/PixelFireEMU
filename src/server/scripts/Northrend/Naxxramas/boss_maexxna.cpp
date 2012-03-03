@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -165,16 +165,16 @@ public:
         void SetGUID(uint64 guid, int32 /*param*/)
         {
             victimGUID = guid;
-            if (me->m_spells[0] && victimGUID)
+            if (me->_spells[0] && victimGUID)
                 if (Unit* victim = Unit::GetUnit(*me, victimGUID))
-                    victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
+                    victim->CastSpell(victim, me->_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (me->m_spells[0] && victimGUID)
+            if (me->_spells[0] && victimGUID)
                 if (Unit* victim = Unit::GetUnit(*me, victimGUID))
-                    victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
+                    victim->RemoveAurasDueToSpell(me->_spells[0], me->GetGUID());
         }
     };
 };

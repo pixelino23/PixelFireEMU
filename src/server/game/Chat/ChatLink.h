@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -51,7 +51,7 @@ public:
     void RemoveLink(std::string& msg) { msg.erase(_startPos, _endPos - _startPos); }
 protected:
     uint32 _color;
-    std::string _name;
+    std::string m_name;
     std::istringstream::pos_type _startPos;
     std::istringstream::pos_type _endPos;
 };
@@ -90,12 +90,12 @@ protected:
 class SpellChatLink : public ChatLink
 {
 public:
-    SpellChatLink() : ChatLink(), _spell(NULL) { }
+    SpellChatLink() : ChatLink(), m_spell(NULL) { }
     virtual bool Initialize(std::istringstream& iss);
     virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
-    SpellInfo const* _spell;
+    SpellInfo const* m_spell;
 };
 
 // AchievementChatLink - link to quest

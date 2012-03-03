@@ -1,11 +1,9 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -303,7 +301,7 @@ void AchievementMgrBase::ResetAchievementCriteria(AchievementCriteriaTypes type,
 
 void AchievementMgrBase::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted, Player* player)
 {
-    if(!m_guild)
+    if(!_guild)
     {
         WorldPacket data(SMSG_CRITERIA_UPDATE, 8+4+8);
         data << uint32(entry->ID);
@@ -330,7 +328,7 @@ void AchievementMgrBase::SendCriteriaUpdate(AchievementCriteriaEntry const* entr
     // the counter is packed like a packed Guid
     data.appendPackGUID(progress->counter);
 
-    uint64 guid = MAKE_NEW_GUID(m_guild->GetId(), 0, HIGHGUID_GUILD);
+    uint64 guid = MAKE_NEW_GUID(_guild->GetId(), 0, HIGHGUID_GUILD);
     data.appendPackGUID(guid);
 
     if (!entry->timeLimit)
@@ -345,10 +343,10 @@ void AchievementMgrBase::SendCriteriaUpdate(AchievementCriteriaEntry const* entr
 
 void AchievementMgrBase::SendDirectMessageToAll(WorldPacket* data)
 {
-    if (!m_guild)
+    if (!_guild)
         return;
 
-    Guild::Members list = m_guild->GetMembers();
+    Guild::Members list = _guild->GetMembers();
     for (Guild::Members::iterator itr = list.begin(); itr != list.end(); ++itr)
         if (Player* player = itr->second->FindPlayer())
             player->SendDirectMessage(data);
@@ -771,10 +769,9 @@ void AchievementMgrBase::UpdateAchievementCriteria(AchievementCriteriaTypes type
                 // speedup for non-login case
                 if (miscValue1 && achievementCriteria->own_item.itemID != miscValue1)
                     continue;
-                SetCriteriaProgress(achievementCriteria, player->GetItemCount(achievementCriteria->own_item.itemID, true), player);
+                //SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
-                // miscvalue1 contains the personal rating
                 if (!miscValue1)                            // no update at login
                     continue;
 
@@ -906,13 +903,13 @@ void AchievementMgrBase::UpdateAchievementCriteria(AchievementCriteriaTypes type
                 if (miscValue2 != achievementCriteria->roll_greed_on_loot.rollValue)
                     continue;
 
-                ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(miscValue1);
-                if (!pProto)
+                ItemTemplate const *proto = sObjectMgr->GetItemTemplate(miscValue1);
+                if (!proto)
                     continue;
 
                 // check item level via achievement_criteria_data
                 AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(player, 0, pProto->ItemLevel))
+                if (!data || !data->Meets(player, 0, proto->ItemLevel))
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, player, PROGRESS_ACCUMULATE);
@@ -1184,6 +1181,17 @@ void AchievementMgrBase::UpdateAchievementCriteria(AchievementCriteriaTypes type
 
                 break;
             }
+            // todo
+            /*case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+                if (!miscValue1 || !miscValue2)
+                    continue;
+                if (miscValue1 != achievementCriteria->currencyGain.currency)
+                    continue;
+                if (int64(miscValue2) < 0)
+                    continue;
+                SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
+                break;*/
+            // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             {
                 if (!miscValue1)
@@ -1363,6 +1371,9 @@ bool AchievementMgrBase::IsCompletedCriteria(AchievementCriteriaEntry const* ach
             return progress->counter >= achievementCriteria->reach_guild_level.level;
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             return progress->counter >= achievementCriteria->kill_creature_type.count;
+        // todo
+        /*case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+            return progress->counter >= achievementCriteria->currencyGain.count;*/
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
@@ -1415,7 +1426,7 @@ void AchievementMgrBase::CompletedCriteriaFor(AchievementEntry const* achievemen
 
     if (IsCompletedAchievement(achievement, player))
     {
-        if(m_guild)
+        if (_guild)
             CompletedAchievement(achievement, player);
         else
             CompletedAchievement(achievement);
@@ -1568,7 +1579,7 @@ void AchievementMgrBase::RemoveCriteriaProgress(const AchievementCriteriaEntry *
     if (criteriaProgress == m_criteriaProgress.end())
         return;
 
-    if(!m_guild)
+    if(!_guild)
     {
         WorldPacket data(SMSG_CRITERIA_DELETED, 4);
         data << uint32(entry->ID);
@@ -1595,10 +1606,10 @@ bool AchievementMgrBase::CanUpdateCriteria(AchievementCriteriaEntry const* crite
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
         return false;
 
-    if (m_guild && !(achievement->flags & ACHIEVEMENT_FLAG_GUILD_ACHIEVEMENT))
+    if (_guild && !(achievement->flags & ACHIEVEMENT_FLAG_GUILD_ACHIEVEMENT))
         return false;
 
-    if (!m_guild && (achievement->flags & ACHIEVEMENT_FLAG_GUILD_ACHIEVEMENT))
+    if (!_guild && (achievement->flags & ACHIEVEMENT_FLAG_GUILD_ACHIEVEMENT))
         return false;
 
     if (achievement->mapID != -1 && player->GetMapId() != uint32(achievement->mapID))
@@ -1635,7 +1646,7 @@ bool AchievementMgrBase::CanUpdateCriteria(AchievementCriteriaEntry const* crite
 
         uint32 value = criteria->moreRequirementValue[i];
 
-        switch(criteria->moreRequirement[i])
+        switch (criteria->moreRequirement[i])
         {
             case ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_GUILD_REP:
             {

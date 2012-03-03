@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -49,7 +49,7 @@ const DoorData doorData[] =
 
 const MinionData minionData[] =
 {
-    //{16573,     BOSS_ANUBREKHAN},     there is no spawn point in db, so we do not add them here
+    //{16573,     BOSS_ANUBREKHAN},    there is no spawn point in db, so we do not add them here
     {16506,     BOSS_FAERLINA},
     {16803,     BOSS_RAZUVIOUS},
     {16063,     BOSS_HORSEMEN},

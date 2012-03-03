@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "GuildAchievementMgr.h"
 #include "Common.h"
 #include "DBCEnums.h"
@@ -50,7 +67,7 @@ void GuildAchievementMgr::Reset()
 
     m_completedAchievements.clear();
     m_criteriaProgress.clear();
-    DeleteFromDB(m_guild->GetId());
+    DeleteFromDB(_guild->GetId());
 
     // re-fill data
     CheckAllAchievementCriteria();
@@ -79,7 +96,7 @@ void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
             /// first new/changed record prefix
             if (!need_execute)
             {
-                ssdel << "DELETE FROM guild_achievement WHERE guildid = " << m_guild->GetId() << " AND achievement IN (";
+                ssdel << "DELETE FROM guild_achievement WHERE guildid = " << _guild->GetId() << " AND achievement IN (";
                 ssins << "INSERT INTO guild_achievement (guildid, achievement, date) VALUES ";
                 need_execute = true;
             }
@@ -92,7 +109,7 @@ void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
 
             // new/changed record data
             ssdel << iter->first;
-            ssins << '(' << m_guild->GetId() << ',' << iter->first << ',' << uint64(iter->second.date) << ')';
+            ssins << '(' << _guild->GetId() << ',' << iter->first << ',' << uint64(iter->second.date) << ')';
 
             /// mark as saved in db
             iter->second.changed = false;
@@ -123,7 +140,7 @@ void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
                 /// first new/changed record prefix (for any counter value)
                 if (!need_execute_del)
                 {
-                    ssdel << "DELETE FROM guild_achievement_progress WHERE guildid = " << m_guild->GetId() << " AND criteria IN (";
+                    ssdel << "DELETE FROM guild_achievement_progress WHERE guildid = " << _guild->GetId() << " AND criteria IN (";
                     need_execute_del = true;
                 }
                 /// next new/changed record prefix
@@ -148,7 +165,7 @@ void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
                     ssins << ',';
 
                 // new/changed record data
-                ssins << '(' << m_guild->GetId() << ',' << iter->first << ',' << iter->second.counter << ',' << iter->second.date << ')';
+                ssins << '(' << _guild->GetId() << ',' << iter->first << ',' << iter->second.counter << ',' << iter->second.date << ')';
             }
 
             /// mark as updated in db
@@ -170,8 +187,8 @@ void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
 
 void GuildAchievementMgr::LoadFromDB()
 {
-    QueryResult achievementResult = CharacterDatabase.PQuery("SELECT achievement, date FROM guild_achievement WHERE guildid = %u", m_guild->GetId());
-    QueryResult criteriaResult = CharacterDatabase.PQuery("SELECT criteria, counter, date FROM guild_achievement_progress WHERE guildid = %u", m_guild->GetId());
+    QueryResult achievementResult = CharacterDatabase.PQuery("SELECT achievement, date FROM guild_achievement WHERE guildid = %u", _guild->GetId());
+    QueryResult criteriaResult = CharacterDatabase.PQuery("SELECT criteria, counter, date FROM guild_achievement_progress WHERE guildid = %u", _guild->GetId());
     if (achievementResult)
     {
         do
@@ -230,11 +247,11 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
     if (!(achievement->flags & ACHIEVEMENT_FLAG_GUILD_ACHIEVEMENT))
         return;
 
-    sLog->outString("Guild %u earned achievement %u", m_guild->GetId(), achievement->ID);
+    sLog->outString("Guild %u earned achievement %u", _guild->GetId(), achievement->ID);
 
     WorldPacket data(SMSG_GUILD_ACHIEVEMENT_EARNED, 8+4+8);
     data << uint32(achievement->ID);
-    data << uint64(MAKE_NEW_GUID(m_guild->GetId(), 0, HIGHGUID_GUILD));
+    data << uint64(MAKE_NEW_GUID(_guild->GetId(), 0, HIGHGUID_GUILD));
     data << uint32(secsToTimeBitFields(time(NULL)));
     SendDirectMessageToAll(&data);
 }

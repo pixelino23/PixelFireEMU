@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -215,13 +215,13 @@ class spell_warl_create_healthstone : public SpellScriptLoader
 };
 
 uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellScript::iTypes[8][3] = {
-    { 5512, 19004, 19005},              // Minor Healthstone
-    { 5511, 19006, 19007},              // Lesser Healthstone
-    { 5509, 19008, 19009},              // Healthstone
-    { 5510, 19010, 19011},              // Greater Healthstone
-    { 9421, 19012, 19013},              // Major Healthstone
-    {22103, 22104, 22105},              // Master Healthstone
-    {36889, 36890, 36891},              // Demonic Healthstone
+    { 5512, 19004, 19005},             // Minor Healthstone
+    { 5511, 19006, 19007},             // Lesser Healthstone
+    { 5509, 19008, 19009},             // Healthstone
+    { 5510, 19010, 19011},             // Greater Healthstone
+    { 9421, 19012, 19013},             // Major Healthstone
+    {22103, 22104, 22105},             // Master Healthstone
+    {36889, 36890, 36891},             // Demonic Healthstone
     {36892, 36893, 36894}               // Fel Healthstone
 };
 
@@ -253,33 +253,6 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         {
             return new spell_warl_everlasting_affliction_SpellScript();
         }
-};
-
-// 18541 Ritual of Doom Effect
-class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
-{
-public:
-    spell_warl_ritual_of_doom_effect() : SpellScriptLoader("spell_warl_ritual_of_doom_effect") { }
-
-    class spell_warl_ritual_of_doom_effect_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetCaster(), GetEffectValue(), true);
-        }
-
-        void Register()
-        {
-            OnEffectHit += SpellEffectFn(spell_warl_ritual_of_doom_effect_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_ritual_of_doom_effect_SpellScript();
-    }
 };
 
 class spell_warl_seed_of_corruption : public SpellScriptLoader
@@ -321,9 +294,9 @@ public:
 
         SpellCastResult CheckCast()
         {
-            if(Unit* caster = GetCaster())
+            if (Unit* caster = GetCaster())
             {
-                if(caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue()) >= caster->GetHealth()) // You cant kill yourself with this
+                if (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue()) >= caster->GetHealth()) // You cant kill yourself with this
                     return SPELL_FAILED_FIZZLE;
 
                 return SPELL_CAST_OK;
@@ -333,12 +306,12 @@ public:
 
         void HandleDummy(SpellEffIndex /*EffIndex*/)
         {
-            if(Unit* caster = GetCaster())
+            if (Unit* caster = GetCaster())
             {
                 int32 damage = int32(caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
                 int32 mana = 0;
 
-                uint32 multiplier = 1.2f;
+                float multiplier = 1.2f;
 
                 // Should not appear in combat log
                 caster->ModifyHealth(-damage);
@@ -366,7 +339,7 @@ public:
         void Register()
         {
             OnCheckCast += SpellCheckCastFn(spell_warl_life_tap_SpellScript::CheckCast);
-            OnEffectHitTarget += SpellEffectFn(spell_warl_life_tap_SpellScript::HandleDummy,EFFECT_0,SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_warl_life_tap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -437,8 +410,8 @@ public:
             int32 bp = 2; // Normal, restore 2% of health
 
             // Check for Death's Embrace
-            if(AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 3223, 0))
-                if(GetCaster()->HealthBelowPct(25))
+            if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 3223, 0))
+                if (GetCaster()->HealthBelowPct(25))
                     bp += int32(aurEff->GetAmount());
 
             GetCaster()->CastCustomSpell(GetCaster(), 89653, &bp, NULL, NULL, true);
@@ -462,7 +435,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_empowerment();
     new spell_warl_create_healthstone();
     new spell_warl_everlasting_affliction();
-    new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
     new spell_warl_life_tap();
     new spell_warl_fear();

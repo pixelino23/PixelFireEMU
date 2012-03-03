@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -47,7 +47,7 @@ uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
     return counter;
 }
 
-bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
+bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
 {
     // check client limits
     if (ignore)
@@ -65,25 +65,39 @@ bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
     if (ignore)
         flag = SOCIAL_FLAG_IGNORED;
 
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr != m_playerSocialMap.end())
     {
-        CharacterDatabase.PExecute("UPDATE character_social SET flags = (flags | %u) WHERE guid = '%u' AND friend = '%u'", flag, GetPlayerGUID(), friend_guid);
-        m_playerSocialMap[friend_guid].Flags |= flag;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS);
+
+        stmt->setUInt8(0, uint8(flag));
+        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt32(2, friendGuid);
+
+        CharacterDatabase.Execute(stmt);
+
+        m_playerSocialMap[friendGuid].Flags |= flag;
     }
     else
     {
-        CharacterDatabase.PExecute("INSERT INTO character_social (guid, friend, flags) VALUES ('%u', '%u', '%u')", GetPlayerGUID(), friend_guid, flag);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
+
+        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt32(1, friendGuid);
+        stmt->setUInt8(2, uint8(flag));
+
+        CharacterDatabase.Execute(stmt);
+
         FriendInfo fi;
         fi.Flags |= flag;
-        m_playerSocialMap[friend_guid] = fi;
+        m_playerSocialMap[friendGuid] = fi;
     }
     return true;
 }
 
-void PlayerSocial::RemoveFromSocialList(uint32 friend_guid, bool ignore)
+void PlayerSocial::RemoveFromSocialList(uint32 friendGuid, bool ignore)
 {
-    PlayerSocialMap::iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
 
@@ -94,24 +108,44 @@ void PlayerSocial::RemoveFromSocialList(uint32 friend_guid, bool ignore)
     itr->second.Flags &= ~flag;
     if (itr->second.Flags == 0)
     {
-        CharacterDatabase.PExecute("DELETE FROM character_social WHERE guid = '%u' AND friend = '%u'", GetPlayerGUID(), friend_guid);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SOCIAL);
+
+        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt32(1, friendGuid);
+
+        CharacterDatabase.Execute(stmt);
+
         m_playerSocialMap.erase(itr);
     }
     else
-        CharacterDatabase.PExecute("UPDATE character_social SET flags = (flags & ~%u) WHERE guid = '%u' AND friend = '%u'", flag, GetPlayerGUID(), friend_guid);
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS);
+
+        stmt->setUInt8(0, uint8(flag));
+        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt32(2, friendGuid);
+
+        CharacterDatabase.Execute(stmt);
+    }
 }
 
-void PlayerSocial::SetFriendNote(uint32 friend_guid, std::string note)
+void PlayerSocial::SetFriendNote(uint32 friendGuid, std::string note)
 {
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
 
     utf8truncate(note, 48);                                  // DB and client size limitation
 
-    CharacterDatabase.EscapeString(note);
-    CharacterDatabase.PExecute("UPDATE character_social SET note = '%s' WHERE guid = '%u' AND friend = '%u'", note.c_str(), GetPlayerGUID(), friend_guid);
-    m_playerSocialMap[friend_guid].Note = note;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_NOTE);
+
+    stmt->setString(0, note);
+    stmt->setUInt32(1, GetPlayerGUID());
+    stmt->setUInt32(2, friendGuid);
+
+    CharacterDatabase.Execute(stmt);
+
+    m_playerSocialMap[friendGuid].Note = note;
 }
 
 void PlayerSocial::SendSocialList(Player* player)

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -34,7 +34,6 @@ enum SpellEffIndex
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255
 
-// loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
     LOOT_MODE_DEFAULT                  = 1,
@@ -149,7 +148,7 @@ enum ReputationRank
 #define MIN_REPUTATION_RANK (REP_HATED)
 #define MAX_REPUTATION_RANK 8
 
-#define MAX_SPILLOVER_FACTIONS 4
+#define MAX_SPILLOVER_FACTIONS 5
 
 enum MoneyConstants
 {
@@ -168,22 +167,23 @@ enum Stats
 };
 
 #define MAX_STATS                        5
-#define MAX_POWERS                       10
 
 enum Powers
 {
-    POWER_MANA                          = 0,
-    POWER_RAGE                          = 1,
-    POWER_FOCUS                         = 2,
-    POWER_ENERGY                        = 3,
-    POWER_HAPPINESS                     = 4,
-    POWER_RUNE                          = 5,
-    POWER_RUNIC_POWER                   = 6,
-    POWER_SOUL_SHARDS                   = 7,
-    POWER_ECLIPSE                       = 8,
-    POWER_HOLY_POWER                    = 9,
-    POWER_ALL                           = 127,    // default for class?
-    POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+    POWER_MANA                            = 0,
+    POWER_RAGE                            = 1,
+    POWER_FOCUS                           = 2,
+    POWER_ENERGY                          = 3,
+    POWER_HAPPINESS                       = 4,
+    POWER_RUNE                            = 5,
+    POWER_RUNIC_POWER                     = 6,
+    POWER_SOULSHARDS                      = 7,
+    POWER_ECLIPSE                         = 8,
+    POWER_HOLY_POWER                      = 9,
+ // POWER_ALTERNATIVE                     = 10,  // Used in some quests
+    MAX_POWERS                            = 10,
+    POWER_ALL                             = 127, // default for class?
+    POWER_HEALTH                          = 0xFFFFFFFE // (-2 as signed value)
 };
 
 enum SpellSchools
@@ -835,11 +835,14 @@ enum SpellEffects
     SPELL_EFFECT_168                                = 168,
     SPELL_EFFECT_169                                = 169,
     SPELL_EFFECT_170                                = 170,
-    SPELL_EFFECT_171                                = 171,
-    SPELL_EFFECT_172                                = 172,
-    SPELL_EFFECT_173                                = 173,
-    SPELL_EFFECT_174                                = 174,
-    TOTAL_SPELL_EFFECTS                             = 175
+    SPELL_EFFECT_171                                = 171,  // Summons gamebject
+    SPELL_EFFECT_172                                = 172,  // Aoe ressurection
+    SPELL_EFFECT_173                                = 173,  // Guild tab unlocked (guild perk)
+    SPELL_EFFECT_174                                = 174,  //
+    SPELL_EFFECT_175                                = 175,  // Unused (4.0.6)
+    SPELL_EFFECT_176                                = 176,  // Some kind of sanctuary effect (Vanish)
+    SPELL_EFFECT_177                                = 177,
+    TOTAL_SPELL_EFFECTS                             = 178,
 };
 
 enum PetTameResult
@@ -1874,14 +1877,14 @@ enum Emote
     EMOTE_STATE_AT_EASE                = 313,
     EMOTE_STATE_READY1H                = 333,
     EMOTE_STATE_SPELLKNEELSTART        = 353,
+    EMOTE_STATE_FISHING                = 362,
+    EMOTE_ONESHOT_FISHING              = 363,
     EMOTE_STATE_SUBMERGED              = 373,
     EMOTE_ONESHOT_SUBMERGE             = 374,
     EMOTE_STATE_READY2H                = 375,
     EMOTE_STATE_READYBOW               = 376,
     EMOTE_ONESHOT_MOUNTSPECIAL         = 377,
     EMOTE_STATE_TALK                   = 378,
-    EMOTE_STATE_FISHING                = 379,
-    EMOTE_ONESHOT_FISHING              = 380,
     EMOTE_ONESHOT_LOOT                 = 381,
     EMOTE_STATE_WHIRLWIND              = 382,
     EMOTE_STATE_DROWNED                = 383,
@@ -2680,7 +2683,7 @@ enum SkillType
 
 inline SkillType SkillByLockType(LockType locktype)
 {
-    switch(locktype)
+    switch (locktype)
     {
         case LOCKTYPE_PICKLOCK:    return SKILL_LOCKPICKING;
         case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
@@ -3250,6 +3253,23 @@ enum RemoveMethod
     GROUP_REMOVEMETHOD_DEFAULT = 0,
     GROUP_REMOVEMETHOD_KICK    = 1,
     GROUP_REMOVEMETHOD_LEAVE   = 2,
+};
+
+enum ActivateTaxiReply
+{
+    ERR_TAXIOK                      = 0,
+    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
+    ERR_TAXINOSUCHPATH              = 2,
+    ERR_TAXINOTENOUGHMONEY          = 3,
+    ERR_TAXITOOFARAWAY              = 4,
+    ERR_TAXINOVENDORNEARBY          = 5,
+    ERR_TAXINOTVISITED              = 6,
+    ERR_TAXIPLAYERBUSY              = 7,
+    ERR_TAXIPLAYERALREADYMOUNTED    = 8,
+    ERR_TAXIPLAYERSHAPESHIFTED      = 9,
+    ERR_TAXIPLAYERMOVING            = 10,
+    ERR_TAXISAMENODE                = 11,
+    ERR_TAXINOTSTANDING             = 12
 };
 
 #endif

@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,8 +36,8 @@ public:
     {
         static ChatCommand commandTable[] =
         {
-            { "gps",      SEC_ADMINISTRATOR,  false, &HandleGPSCommand,                  "", NULL },
-            { "wpgps",    SEC_ADMINISTRATOR,  false, &HandleWPGPSCommand,                "", NULL },
+            { "gps",     SEC_ADMINISTRATOR,  false, &HandleGPSCommand,                  "", NULL },
+            { "wpgps",   SEC_ADMINISTRATOR,  false, &HandleWPGPSCommand,                "", NULL },
             { NULL,       0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
@@ -129,7 +129,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        sLog->outSQLDev("(@PATH, XX, %.3f, %.3f, %.5f, 0,0, 0,100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        sLog->outSQLDev("(@PATH, XX, %.3f, %.3f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;

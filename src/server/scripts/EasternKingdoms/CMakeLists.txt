@@ -17,6 +17,8 @@ set(scripts_STAT_SRCS
   EasternKingdoms/AlteracValley/boss_vanndar.cpp
   EasternKingdoms/AlteracValley/alterac_valley.cpp
   
+  EasternKingdoms/ElwynnForest/elwynnforest.cpp
+  
   EasternKingdoms/Scholomance/boss_the_ravenian.cpp
   EasternKingdoms/Scholomance/boss_instructor_malicia.cpp
   EasternKingdoms/Scholomance/boss_death_knight_darkreaver.cpp
@@ -59,6 +61,9 @@ set(scripts_STAT_SRCS
   EasternKingdoms/GrimBatol/boss_general_umbriss.cpp
   EasternKingdoms/GrimBatol/instance_grim_batol.cpp  
   
+  EasternKingdoms/Gilneas/gilneas.cpp
+  EasternKingdoms/Gilneas/gilneas.h
+    
   EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
   EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
   EasternKingdoms/BlackrockDepths/blackrock_depths.cpp
@@ -144,7 +149,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BaradinHold/baradin_hold.h
   EasternKingdoms/BaradinHold/instance_baradin_hold.cpp
   EasternKingdoms/BaradinHold/boss_argaloth.cpp
-  EasternKingdoms/BaradinHold/boss_occuthar.cpp
   
   EasternKingdoms/BlackrockCaverns/blackrock_caverns.h
   EasternKingdoms/BlackrockCaverns/boss_ascendant_lord_obsidius.cpp
@@ -259,32 +263,30 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ZulAman/zulaman.cpp
   EasternKingdoms/ZulAman/zulaman.h 
   
-  EasternKingdoms/ghostlands.cpp
-  EasternKingdoms/eversong_woods.cpp
-  EasternKingdoms/gilneas.cpp
-  EasternKingdoms/isle_of_queldanas.cpp
-  EasternKingdoms/boss_kruul.cpp
-  EasternKingdoms/searing_gorge.cpp
-  EasternKingdoms/wetlands.cpp
-  EasternKingdoms/arathi_highlands.cpp
-  EasternKingdoms/redridge_mountains.cpp  
-  EasternKingdoms/ironforge.cpp
-  EasternKingdoms/eastern_plaguelands.cpp  
-  EasternKingdoms/duskwood.cpp  
-  EasternKingdoms/undercity.cpp
-  EasternKingdoms/silvermoon_city.cpp
-  EasternKingdoms/loch_modan.cpp  
-  EasternKingdoms/burning_steppes.cpp  
-  EasternKingdoms/blasted_lands.cpp
-  EasternKingdoms/stormwind_city.cpp
-  EasternKingdoms/hinterlands.cpp
-  EasternKingdoms/western_plaguelands.cpp
-  EasternKingdoms/alterac_mountains.cpp
-  EasternKingdoms/westfall.cpp
-  EasternKingdoms/silverpine_forest.cpp
-  EasternKingdoms/stranglethorn_vale.cpp
-  EasternKingdoms/swamp_of_sorrows.cpp
-  EasternKingdoms/tirisfal_glades.cpp 
+  EasternKingdoms/Zones/ghostlands.cpp
+  EasternKingdoms/Zones/eversong_woods.cpp
+  EasternKingdoms/Zones/isle_of_queldanas.cpp
+  EasternKingdoms/Zones/boss_kruul.cpp
+  EasternKingdoms/Zones/searing_gorge.cpp
+  EasternKingdoms/Zones/wetlands.cpp
+  EasternKingdoms/Zones/arathi_highlands.cpp
+  EasternKingdoms/Zones/redridge_mountains.cpp  
+  EasternKingdoms/Zones/ironforge.cpp
+  EasternKingdoms/Zones/eastern_plaguelands.cpp  
+  EasternKingdoms/Zones/duskwood.cpp  
+  EasternKingdoms/Zones/undercity.cpp
+  EasternKingdoms/Zones/silvermoon_city.cpp
+  EasternKingdoms/Zones/loch_modan.cpp  
+  EasternKingdoms/Zones/burning_steppes.cpp  
+  EasternKingdoms/Zones/blasted_lands.cpp
+  EasternKingdoms/Zones/stormwind_city.cpp
+  EasternKingdoms/Zones/hinterlands.cpp
+  EasternKingdoms/Zones/western_plaguelands.cpp
+  EasternKingdoms/Zones/alterac_mountains.cpp
+  EasternKingdoms/Zones/westfall.cpp
+  EasternKingdoms/Zones/silverpine_forest.cpp
+  EasternKingdoms/Zones/stranglethorn_vale.cpp
+  EasternKingdoms/Zones/swamp_of_sorrows.cpp
 )
 
 message("  -> Prepared: Eastern Kingdoms")

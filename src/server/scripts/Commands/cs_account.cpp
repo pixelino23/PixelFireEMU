@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,26 +36,26 @@ public:
     {
         static ChatCommand accountSetCommandTable[] =
         {
-            { "addon",          SEC_ADMINISTRATOR,  true,  &HandleAccountSetAddonCommand,     "", NULL },
-            { "gmlevel",        SEC_CONSOLE,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
-            { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
+            { "addon",         SEC_ADMINISTRATOR,  true,  &HandleAccountSetAddonCommand,     "", NULL },
+            { "gmlevel",       SEC_CONSOLE,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
+            { "password",      SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
-            { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
-            { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
-            { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
-            { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
-            { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
-            { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
+            { "addon",         SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
+            { "create",        SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
+            { "delete",        SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
+            { "onlinelist",    SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
+            { "lock",          SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
+            { "set",           SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
+            { "password",      SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
+            { "",              SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "account",        SEC_PLAYER,         true,  NULL,     "", accountCommandTable  },
+            { "account",       SEC_PLAYER,         true,  NULL,     "", accountCommandTable  },
             { NULL,             0,                  false, NULL,                     "", NULL }
         };
         return commandTable;
@@ -386,8 +386,13 @@ public:
         if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
-        // No SQL injection
-        LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'", expansion, accountId);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_EXPANSION);
+
+        stmt->setUInt8(0, expansion);
+        stmt->setUInt32(1, accountId);
+
+        LoginDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName.c_str(), accountId, expansion);
         return true;
     }
@@ -478,13 +483,33 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
+        PreparedStatement* stmt;
+
         if (gmRealmID == -1)
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u'", targetAccountId);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+        }
         else
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", targetAccountId, realmID);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt32(1, realmID);
+        }
+        LoginDatabase.Execute(stmt);
 
         if (gm != 0)
-            LoginDatabase.PExecute("INSERT INTO account_access VALUES ('%u', '%d', '%d')", targetAccountId, gm, gmRealmID);
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt8(1, uint8(gm));
+            stmt->setInt32(2, gmRealmID);
+
+            LoginDatabase.Execute(stmt);
+        }
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

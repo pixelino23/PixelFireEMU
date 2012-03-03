@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -102,9 +102,9 @@ class Aura
         uint64 GetCastItemGUID() const { return m_castItemGuid; }
         uint64 GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
-        WorldObject* GetOwner() const { return m_owner; }
-        Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
-        DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
+        WorldObject* GetOwner() const { return _owner; }
+        Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)_owner; }
+        DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)_owner; }
 
         AuraObjectType GetType() const;
 
@@ -187,6 +187,9 @@ class Aura
         bool CanStackWith(Aura const* existingAura) const;
 
         // Proc system
+        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
+        // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
+        // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
         bool IsProcOnCooldown() const;
         void AddProcCooldown(uint32 msec);
         bool IsUsingCharges() const { return m_isUsingCharges; }
@@ -199,6 +202,8 @@ class Aura
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
+        void CallScriptDispel(DispelInfo* dispelInfo);
+        void CallScriptAfterDispel(DispelInfo* dispelInfo);
         bool CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
@@ -221,7 +226,7 @@ class Aura
         uint64 const m_casterGuid;
         uint64 const m_castItemGuid;                        // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t const m_applyTime;
-        WorldObject* const m_owner;                        //
+        WorldObject* const _owner;                        //
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time

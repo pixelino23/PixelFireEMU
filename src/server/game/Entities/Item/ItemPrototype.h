@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -377,10 +377,11 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
     ITEM_SUBCLASS_ARMOR_TOTEM                   = 9,
     ITEM_SUBCLASS_ARMOR_SIGIL                   = 10,
-    ITEM_SUBCLASS_ARMOR_RELIC                   = 11
+    ITEM_SUBCLASS_ARMOR_RELIC                   = 11,
+    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 12
 };
 
-#define MAX_ITEM_SUBCLASS_ARMOR                   12
+#define MAX_ITEM_SUBCLASS_ARMOR                   13
 
 enum ItemSubclassReagent
 {
@@ -654,7 +655,7 @@ struct ItemTemplate
     // helpers
     bool CanChangeEquipStateInCombat() const
     {
-        switch(InventoryType)
+        switch (InventoryType)
         {
             case INVTYPE_RELIC:
             case INVTYPE_SHIELD:
@@ -662,7 +663,7 @@ struct ItemTemplate
                 return true;
         }
 
-        switch(Class)
+        switch (Class)
         {
             case ITEM_CLASS_WEAPON:
             case ITEM_CLASS_PROJECTILE:
@@ -723,7 +724,6 @@ struct ItemSetNameEntry
 struct ItemSetNameLocale
 {
     StringVector Name;
-    StringVector Description;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

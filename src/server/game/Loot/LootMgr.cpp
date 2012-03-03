@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -37,18 +37,18 @@ static Rates const qualityToRate[MAX_ITEM_QUALITY] = {
     RATE_DROP_ITEM_ARTIFACT,                                // ITEM_QUALITY_ARTIFACT
 };
 
-LootStore LootTemplates_Creature("creature_loot_template",           "creature entry",                  true);
-LootStore LootTemplates_Disenchant("disenchant_loot_template",       "item disenchant id",              true);
-LootStore LootTemplates_Fishing("fishing_loot_template",             "area id",                         true);
-LootStore LootTemplates_Gameobject("gameobject_loot_template",       "gameobject entry",                true);
-LootStore LootTemplates_Item("item_loot_template",                   "item entry",                      true);
-LootStore LootTemplates_Mail("mail_loot_template",                   "mail template id",                false);
-LootStore LootTemplates_Milling("milling_loot_template",             "item entry (herb)",               true);
-LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template", "creature pickpocket lootid",      true);
-LootStore LootTemplates_Prospecting("prospecting_loot_template",     "item entry (ore)",                true);
-LootStore LootTemplates_Reference("reference_loot_template",         "reference id",                    false);
-LootStore LootTemplates_Skinning("skinning_loot_template",           "creature skinning id",            true);
-LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (random item creating)", false);
+LootStore LootTemplates_Creature("creature_loot_template",          "creature entry",                 true);
+LootStore LootTemplates_Disenchant("disenchant_loot_template",      "item disenchant id",             true);
+LootStore LootTemplates_Fishing("fishing_loot_template",            "area id",                        true);
+LootStore LootTemplates_Gameobject("gameobject_loot_template",      "gameobject entry",               true);
+LootStore LootTemplates_Item("item_loot_template",                  "item entry",                     true);
+LootStore LootTemplates_Mail("mail_loot_template",                  "mail template id",               false);
+LootStore LootTemplates_Milling("milling_loot_template",            "item entry (herb)",              true);
+LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template", "creature pickpocket lootid",     true);
+LootStore LootTemplates_Prospecting("prospecting_loot_template",    "item entry (ore)",               true);
+LootStore LootTemplates_Reference("reference_loot_template",        "reference id",                   false);
+LootStore LootTemplates_Skinning("skinning_loot_template",          "creature skinning id",           true);
+LootStore LootTemplates_Spell("spell_loot_template",                "spell id (random item creating)", false);
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
 {
@@ -103,9 +103,7 @@ uint32 LootStore::LoadLootTable()
     QueryResult result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount FROM %s", GetName());
 
     if (!result)
-    {
         return 0;
-}
 
     uint32 count = 0;
 
@@ -249,9 +247,9 @@ bool LootStoreItem::Roll(bool rate) const
     if (mincountOrRef < 0)                                   // reference case
         return roll_chance_f(chance* (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
 
-    float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->Quality]) : 1.0f;
+    float qualityModifier = proto && rate ? sWorld->getRate(qualityToRate[proto->Quality]) : 1.0f;
 
     return roll_chance_f(chance*qualityModifier);
 }
@@ -340,22 +338,22 @@ LootItem::LootItem(LootStoreItem const& li)
 bool LootItem::AllowedForPlayer(Player const* player) const
 {
     // DB conditions check
-    if (!sConditionMgr->IsPlayerMeetToConditions(const_cast<Player*>(player), conditions))
+    if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
         return false;
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
-    if (!pProto)
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+    if (!proto)
         return false;
 
     // not show loot for players without profession or those who already know the recipe
-    if ((pProto->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
+    if ((proto->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!player->HasSkill(proto->RequiredSkill) || player->HasSpell(proto->Spells[1].SpellId)))
         return false;
 
     // not show loot for not own team
-    if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeam() != HORDE)
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeam() != HORDE)
         return false;
 
-    if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
         return false;
 
     if (needs_quest)
@@ -367,7 +365,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     else
     {
         // Not quest only drop (check quest starting items for already accepted non-repeatable quests)
-        if (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE && !player->HasQuestForItem(itemid))
+        if (proto->StartQuest && player->GetQuestStatus(proto->StartQuest) != QUEST_STATUS_NONE && !player->HasQuestForItem(itemid))
             return false;
     }
 
@@ -951,6 +949,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 ++itemsShown;
             }
         }
+    }
+
+    uint8 currencys = 0;
+     std::list<CurrencyLoot> temp = sObjectMgr->GetCurrencyLoot(lv.objEntry, lv.objType);
+    for (std::list<CurrencyLoot>::iterator i = temp.begin(); i != temp.end(); ++i)
+    {
+        b << uint8(currencys);
+        b << uint32(i->CurrencyId);
+        b << uint32(i->CurrencyAmount);
+        ++currencys;
     }
 
     //update number of items shown

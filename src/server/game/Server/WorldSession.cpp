@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -95,14 +95,14 @@ m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
-isRecruiter(isARecruiter)
+isRecruiter(isARecruiter), timeLastWhoCommand(0)
 {
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
         sock->AddReference();
         ResetTimeOutTime();
-        LoginDatabase.PExecute("UPDATE account SET online = %d WHERE id = %u;", realmID,  GetAccountId());
+        LoginDatabase.PExecute("UPDATE account SET online = %d WHERE id = %u;", realmID,  GetAccountId());     // One-time query
     }
 
     InitializeQueryCallbackParameters();
@@ -128,7 +128,7 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
-    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
+    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 }
 
 void WorldSession::SizeError(WorldPacket const &packet, uint32 size) const
@@ -226,7 +226,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! Delete packet after processing by default
     bool deletePacket = true;
     //! To prevent infinite loop
-    bool delayedPackets = false;
     WorldPacket* firstDelayedPacket = NULL;
     //! If _recvQueue.peek() == firstDelayedPacket it means that in this Update call, we've processed all
     //! *properly timed* packets, and we're now at the part of the queue where we find
@@ -239,8 +238,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         OpcodeHandler const &opHandle = opcodeTable[packet->GetOpcode()];
 
-        // Added this line for debugging. Just comment out if you don't want opcode spam.
-        sLog->outString("SESSION: Received opcode 0x%.4X (%s)", packet->GetOpcode(), packet->GetOpcode()>OPCODE_NOT_FOUND?"nf":LookupOpcodeName(packet->GetOpcode()));
+        // Opcode display while only while debugging.
+        sLog->outDebug(LOG_FILTER_OPCODES, "SESSION: Received opcode 0x%.4X (%s)", packet->GetOpcode(), packet->GetOpcode()>OPCODE_NOT_FOUND?"nf":LookupOpcodeName(packet->GetOpcode()));
 
         // !=NULL checked in WorldSocket
         try
@@ -445,8 +444,8 @@ void WorldSession::LogoutPlayer(bool Save)
             bg->EventPlayerLoggedOut(_player);
 
         ///- Teleport to home if the player is in an invalid instance
-        if (!_player->m_InstanceValid && !_player->isGameMaster())
-            _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
+        if (!_player->_InstanceValid && !_player->isGameMaster())
+            _player->TeleportTo(_player->_homebindMapId, _player->_homebindX, _player->_homebindY, _player->_homebindZ, _player->GetOrientation());
 
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
@@ -517,8 +516,8 @@ void WorldSession::LogoutPlayer(bool Save)
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow());
-        Map* _map = _player->GetMap();
-        _map->RemovePlayerFromMap(_player, true);
+        if (Map* _map = _player->FindMap())
+            _map->RemovePlayerFromMap(_player, true);
         SetPlayer(NULL);                                    // deleted in Remove call
 
         ///- Send the 'logout complete' packet to the client
@@ -1010,14 +1009,7 @@ void WorldSession::SendAddonsInfo()
 
     uint32 count = 0;
     data << uint32(count);
-    /*for (uint32 i = 0; i < count; ++i)
-    {
-        uint32
-        string (16 bytes)
-        string (16 bytes)
-        uint32
-        uint32
-    }*/
+    data << uint32(0); // count for an unknown for loop
 
     SendPacket(&data);
 }

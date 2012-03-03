@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -301,34 +301,6 @@ public:
     }
 };
 
-class spell_pal_judgement_of_command : public SpellScriptLoader
-{
-public:
-    spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
-
-    class spell_pal_judgement_of_command_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_judgement_of_command_SpellScript)
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* unitTarget = GetHitUnit())
-                if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
-                    GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
-        }
-
-        void Register()
-        {
-            // add dummy effect spell handler to Judgement of Command
-            OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_judgement_of_command_SpellScript();
-    }
-};
-
 class spell_pal_judgements_of_the_bold : public SpellScriptLoader
 {
     public:
@@ -373,10 +345,10 @@ public:
 
         void CalculateDamage(SpellEffIndex /*effIndex*/)
         {
-            if(Unit* caster = GetCaster())
+            if (Unit* caster = GetCaster())
             {
                 int32 damage = GetHitDamage();
-                switch(caster->GetPower(POWER_HOLY_POWER))
+                switch (caster->GetPower(POWER_HOLY_POWER))
                 {
                     case 0:
                         damage = int32(damage * 1.16f);
@@ -583,7 +555,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_guarded_by_the_light();
     new spell_pal_holy_shock();
-    new spell_pal_judgement_of_command();
     new spell_pal_shield_of_righteous();
     new spell_pal_judgements_of_the_bold();
     new spell_pal_word_of_glory();

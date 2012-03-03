@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -786,15 +786,15 @@ const Position TeleportToTransportPosition = {661.0f, -1244.0f, 288.0f, 0.0f};
 
 const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
 {
-    {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
-    {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
-    {629.57f, -279.83f, 11.33f, 0.0f},            // dock
-    {780.729f, -1103.08f, 135.51f, 2.27f},        // hangar
-    {775.74f, -652.77f, 9.31f, 4.27f},            // workshop
-    {278.42f, -883.20f, 49.89f, 1.53f},           // alliance starting base
-    {1300.91f, -834.04f, 48.91f, 1.69f},          // horde starting base
-    {438.86f, -310.04f, 51.81f, 5.87f},           // last resort alliance
-    {1148.65f, -1250.98f, 16.60f, 1.74f},         // last resort horde
+    {0.0f, 0.0f, 0.0f, 0.0f},                    // no grave
+    {0.0f, 0.0f, 0.0f, 0.0f},                    // no grave
+    {629.57f, -279.83f, 11.33f, 0.0f},           // dock
+    {780.729f, -1103.08f, 135.51f, 2.27f},       // hangar
+    {775.74f, -652.77f, 9.31f, 4.27f},           // workshop
+    {278.42f, -883.20f, 49.89f, 1.53f},          // alliance starting base
+    {1300.91f, -834.04f, 48.91f, 1.69f},         // horde starting base
+    {438.86f, -310.04f, 51.81f, 5.87f},          // last resort alliance
+    {1148.65f, -1250.98f, 16.60f, 1.74f},        // last resort horde
 };
 
 const Position hordeGunshipPassengers[5] =

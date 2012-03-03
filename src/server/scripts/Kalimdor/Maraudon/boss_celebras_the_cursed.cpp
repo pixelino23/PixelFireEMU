@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,9 +25,12 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_WRATH                 21807
-#define SPELL_ENTANGLINGROOTS       12747
-#define SPELL_CORRUPT_FORCES        21968
+enum Spells
+{
+    SPELL_WRATH                 = 21807,
+    SPELL_ENTANGLINGROOTS       = 12747,
+    SPELL_CORRUPT_FORCES        = 21968
+};
 
 class celebras_the_cursed : public CreatureScript
 {
@@ -41,7 +44,7 @@ public:
 
     struct celebras_the_cursedAI : public ScriptedAI
     {
-        celebras_the_cursedAI(Creature* c) : ScriptedAI(c) {}
+        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Wrath_Timer;
         uint32 EntanglingRoots_Timer;
@@ -74,14 +77,16 @@ public:
                 if (target)
                     DoCast(target, SPELL_WRATH);
                 Wrath_Timer = 8000;
-            } else Wrath_Timer -= diff;
+            }
+            else Wrath_Timer -= diff;
 
             //EntanglingRoots
             if (EntanglingRoots_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ENTANGLINGROOTS);
                 EntanglingRoots_Timer = 20000;
-            } else EntanglingRoots_Timer -= diff;
+            }
+            else EntanglingRoots_Timer -= diff;
 
             //CorruptForces
             if (CorruptForces_Timer <= diff)
@@ -89,7 +94,8 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 DoCast(me, SPELL_CORRUPT_FORCES);
                 CorruptForces_Timer = 20000;
-            } else CorruptForces_Timer -= diff;
+            }
+            else CorruptForces_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }

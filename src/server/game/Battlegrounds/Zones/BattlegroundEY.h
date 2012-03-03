@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -218,8 +218,10 @@ enum EYBattlegroundObjectTypes
     BG_EY_OBJECT_MAX                            = 59
 };
 
-#define BG_EY_NotEYWeekendHonorTicks    330
-#define BG_EY_EYWeekendHonorTicks       200
+#define BG_EY_NotEYWeekendHonorTicks    260
+#define BG_EY_EYWeekendHonorTicks       160
+
+#define EY_EVENT_START_BATTLE           13180 // Achievement: Flurry
 
 enum BG_EY_Score
 {
@@ -258,9 +260,9 @@ struct BattlegroundEYPointIconsStruct
 
 // x, y, z, o
 const float BG_EY_TriggerPositions[EY_POINTS_MAX][4] = {
-    {2044.28f, 1729.68f, 1189.96f, 0.017453f},  // FEL_REAVER center
-    {2048.83f, 1393.65f, 1194.49f, 0.20944f},   // BLOOD_ELF center
-    {2286.56f, 1402.36f, 1197.11f, 3.72381f},   // DRAENEI_RUINS center
+    {2044.28f, 1729.68f, 1189.96f, 0.017453f}, // FEL_REAVER center
+    {2048.83f, 1393.65f, 1194.49f, 0.20944f},  // BLOOD_ELF center
+    {2286.56f, 1402.36f, 1197.11f, 3.72381f},  // DRAENEI_RUINS center
     {2284.48f, 1731.23f, 1189.99f, 2.89725f}    // MAGE_TOWER center
 };
 
@@ -384,11 +386,11 @@ class BattlegroundEY : public Battleground
         void UpdatePointStatuses();
 
         /* Scorekeeping */
-        uint32 GetTeamScore(uint32 Team) const { return m_TeamScores[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetTeamScore(uint32 Team) const { return _TeamScores[GetTeamIndexByTeamId(Team)]; }
         void AddPoints(uint32 Team, uint32 Points);
 
-        void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
-        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
+        void RemovePoint(uint32 TeamID, uint32 Points = 1) { _TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
+        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { _TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
 
         uint32 m_HonorScoreTics[2];
         uint32 m_TeamPointsCount[2];

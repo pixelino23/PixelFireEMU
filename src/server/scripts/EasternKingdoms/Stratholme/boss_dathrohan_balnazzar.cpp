@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2012 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -55,14 +55,14 @@ struct SummonDef
 
 SummonDef SummonPoint[]=
 {
-    {3444.156f, -3090.626f, 135.002f, 2.240f},                  //G1 front, left
-    {3449.123f, -3087.009f, 135.002f, 2.240f},                  //G1 front, right
-    {3446.246f, -3093.466f, 135.002f, 2.240f},                  //G1 back left
-    {3451.160f, -3089.904f, 135.002f, 2.240f},                  //G1 back, right
+    {3444.156f, -3090.626f, 135.002f, 2.240f},                 //G1 front, left
+    {3449.123f, -3087.009f, 135.002f, 2.240f},                 //G1 front, right
+    {3446.246f, -3093.466f, 135.002f, 2.240f},                 //G1 back left
+    {3451.160f, -3089.904f, 135.002f, 2.240f},                 //G1 back, right
 
-    {3457.995f, -3080.916f, 135.002f, 3.784f},                  //G2 front, left
-    {3454.302f, -3076.330f, 135.002f, 3.784f},                  //G2 front, right
-    {3460.975f, -3078.901f, 135.002f, 3.784f},                  //G2 back left
+    {3457.995f, -3080.916f, 135.002f, 3.784f},                 //G2 front, left
+    {3454.302f, -3076.330f, 135.002f, 3.784f},                 //G2 front, right
+    {3460.975f, -3078.901f, 135.002f, 3.784f},                 //G2 back left
     {3457.338f, -3073.979f, 135.002f, 3.784f}                   //G2 back, right
 };
 

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -53,8 +53,8 @@ void FollowerAI::AttackStart(Unit* who)
         me->SetInCombatWith(who);
         who->SetInCombatWith(me);
 
-        if (me->HasUnitState(UNIT_STAT_FOLLOW))
-            me->ClearUnitState(UNIT_STAT_FOLLOW);
+        if (me->HasUnitState(UNIT_STATE_FOLLOW))
+            me->ClearUnitState(UNIT_STATE_FOLLOW);
 
         if (IsCombatMovementAllowed())
             me->GetMotionMaster()->MoveChase(who);
@@ -70,7 +70,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //experimental (unknown) flag not present
-    if (!(me->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
         return false;
 
     //not a player
@@ -103,7 +103,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
 {
-    if (!me->HasUnitState(UNIT_STAT_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
+    if (!me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
     {
         if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombat(who))
             return;
@@ -165,8 +165,8 @@ void FollowerAI::JustRespawned()
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
-    if (me->getFaction() != me->GetCreatureInfo()->faction_A)
-        me->setFaction(me->GetCreatureInfo()->faction_A);
+    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
+        me->setFaction(me->GetCreatureTemplate()->faction_A);
 
     Reset();
 }
@@ -182,7 +182,7 @@ void FollowerAI::EnterEvadeMode()
     {
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI left combat, returning to CombatStartPosition.");
 
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
         {
             float fPosX, fPosY, fPosZ;
             me->GetPosition(fPosX, fPosY, fPosZ);
@@ -191,7 +191,7 @@ void FollowerAI::EnterEvadeMode()
     }
     else
     {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
             me->GetMotionMaster()->MoveTargetedHome();
     }
 
@@ -355,9 +355,9 @@ Player* FollowerAI::GetLeaderForFollower()
 
 void FollowerAI::SetFollowComplete(bool bWithEndEvent)
 {
-    if (me->HasUnitState(UNIT_STAT_FOLLOW))
+    if (me->HasUnitState(UNIT_STATE_FOLLOW))
     {
-        me->ClearUnitState(UNIT_STAT_FOLLOW);
+        me->ClearUnitState(UNIT_STATE_FOLLOW);
 
         me->StopMoving();
         me->GetMotionMaster()->Clear();
@@ -384,9 +384,9 @@ void FollowerAI::SetFollowPaused(bool paused)
     {
         AddFollowState(STATE_FOLLOW_PAUSED);
 
-        if (me->HasUnitState(UNIT_STAT_FOLLOW))
+        if (me->HasUnitState(UNIT_STATE_FOLLOW))
         {
-            me->ClearUnitState(UNIT_STAT_FOLLOW);
+            me->ClearUnitState(UNIT_STATE_FOLLOW);
 
             me->StopMoving();
             me->GetMotionMaster()->Clear();

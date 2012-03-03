@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -501,7 +501,7 @@ public:
 
         void SummonedCreatureDespawn(Creature* summon)
         {
-            if (summon->GetCreatureInfo()->Entry == FLAME_OF_AZZINOTH)
+            if (summon->GetCreatureTemplate()->Entry == FLAME_OF_AZZINOTH)
             {
                 for (uint8 i = 0; i < 2; ++i)
                     if (summon->GetGUID() == FlameGUID[i])
@@ -1866,7 +1866,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     TransformCount = 0;
 
     me->SetDisplayId(21135);
-    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
@@ -1983,7 +1983,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
                 Akama->GetMotionMaster()->Clear(false);
                 // Akama->GetMotionMaster()->MoveIdle();
                 Akama->SetPosition(x, y, z, 0.0f);
-                Akama->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_NONE, 0); // Illidan must not die until Akama arrives.
+                Akama->MonsterMoveWithSpeed(x, y, z, 0); // Illidan must not die until Akama arrives.
                 Akama->GetMotionMaster()->MoveChase(me);
             }
         }

@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -63,19 +63,19 @@ struct CouncilYells
 
 static CouncilYells CouncilAggro[]=
 {
-    {-1564069, 5000},                                       // Gathios
-    {-1564070, 5500},                                       // Veras
-    {-1564071, 5000},                                       // Malande
-    {-1564072, 0},                                          // Zerevor
+    {-1564069, 5000},                                      // Gathios
+    {-1564070, 5500},                                      // Veras
+    {-1564071, 5000},                                      // Malande
+    {-1564072, 0},                                         // Zerevor
 };
 
 // Need to get proper timers for this later
 static CouncilYells CouncilEnrage[]=
 {
-    {-1564073, 2000},                                       // Gathios
-    {-1564074, 6000},                                       // Veras
-    {-1564075, 5000},                                       // Malande
-    {-1564076, 0},                                          // Zerevor
+    {-1564073, 2000},                                      // Gathios
+    {-1564074, 6000},                                      // Veras
+    {-1564075, 5000},                                      // Malande
+    {-1564076, 0},                                         // Zerevor
 };
 
 // High Nethermancer Zerevor's spells

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -475,7 +475,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                         //Melee current victim if flag not set
                         if (!(action.cast.castFlags & CAST_NO_MELEE_IF_OOM))
                         {
-                            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
                             {
                                 m_AttackDistance = 0.0f;
                                 m_AttackAngle = 0.0f;
@@ -576,7 +576,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 {
                     if (action.combat_movement.melee)
                     {
-                        me->AddUnitState(UNIT_STAT_MELEE_ATTACKING);
+                        me->AddUnitState(UNIT_STATE_MELEE_ATTACKING);
                         me->SendMeleeAttackStart(victim);
                     }
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
@@ -590,10 +590,10 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     Unit* victim = me->getVictim();
                     if (action.combat_movement.melee && victim)
                     {
-                        me->ClearUnitState(UNIT_STAT_MELEE_ATTACKING);
+                        me->ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
                         me->SendMeleeAttackStop(victim);
                     }
-                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
                         me->GetMotionMaster()->MoveIdle();
                 }
             }
@@ -1307,7 +1307,7 @@ bool CreatureEventAI::CanCast(Unit* target, SpellInfo const* spell, bool trigger
         return false;
 
     //Check for power
-    if (!triggered && me->GetPower((Powers)spell->PowerType) < spell->CalcPowerCost(me, spell->GetSchoolMask()))
+    if (!triggered && (uint32)me->GetPower((Powers)spell->PowerType) < int32(spell->CalcPowerCost(me, spell->GetSchoolMask())))
         return false;
 
     //Unit is out of range of this spell
@@ -1334,7 +1334,8 @@ void CreatureEventAI::ReceiveEmote(Player* player, uint32 textEmote)
             cond.mConditionValue1 = (*itr).Event.receive_emote.conditionValue1;
             cond.mConditionValue2 = (*itr).Event.receive_emote.conditionValue2;
 
-            if (cond.Meets(player))
+            ConditionSourceInfo srcInfo = ConditionSourceInfo(player);
+            if (cond.Meets(srcInfo))
             {
                 sLog->outDebug(LOG_FILTER_DATABASE_AI, "CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
                 ProcessEvent(*itr, player);

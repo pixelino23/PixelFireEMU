@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -28,11 +28,11 @@ EndScriptData */
 
 enum eEnums
 {
-    SPELL_POLYMORPH         = 12826,
-    SPELL_MARK_OF_THE_WILD  = 26990,
+    SPELL_POLYMORPH         = 12826, 
+    SPELL_MARK_OF_THE_WILD  = 26990, 
 
-    SAY_NOT_INTERESTED      = -1999922,
-    SAY_WRONG               = -1999923,
+    SAY_NOT_INTERESTED      = -1999922, 
+    SAY_WRONG               = -1999923, 
     SAY_CORRECT             = -1999924
 };
 

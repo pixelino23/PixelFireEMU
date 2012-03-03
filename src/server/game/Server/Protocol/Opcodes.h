@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -145,6 +145,7 @@ enum Opcodes
     SMSG_GUILD_REWARDS_LIST                          = 0x00C4C, // 4.0.6a 13623
     SMSG_GUILD_MAX_DAILY_XP                          = 0x0441C, // 4.0.6a 13623
     SMSG_GUILD_NEWS_UPDATE                           = 0x0485E, // 4.0.6a 13623
+    CMSG_GUILD_QUERY_NEWS                            = 0x03529, // 4.0.6a 13623
     CMSG_GUILD_REQUEST_NEWS                          = 0x03129, // 4.0.6a 13623
     SMSG_GUILD_XP_UPDATE                             = 0x0440E, // 4.0.6a 13623
     SMSG_GUILD_COMMAND_RESULT                        = 0x023C0, // 4.0.6a 13623
@@ -194,7 +195,7 @@ enum Opcodes
     SMSG_ITEM_COOLDOWN                               = 0x06CC8, // 4.0.6a 13623
     CMSG_GAMEOBJ_USE                                 = 0x029E4, // 4.0.6a 13623
     CMSG_DESTROY_ITEMS                               = 0x0B8A8, // 4.0.6a 13623
-    SMSG_GAMEOBJECT_CUSTOM_ANIM                      = 0x036A0, // 4.0.6a 13623
+    SMSG_GAMEOBJECT_CUSTOM_ANIM                      = 0x02E8C, // (0x8230)(0x00B3) // 4.0.6a 13623
     CMSG_AREATRIGGER                                 = 0x0ADA8, // 4.0.6a 13623
     MSG_MOVE_START_FORWARD                           = 0x0EBAC, // 4.0.6a 13623
     MSG_MOVE_START_BACKWARD                          = 0x072E4, // 4.0.6a 13623
@@ -282,6 +283,7 @@ enum Opcodes
     CMSG_AUTOEQUIP_GROUND_ITEM                       = 0x10044, // Unknown opcode ID
     CMSG_AUTOSTORE_GROUND_ITEM                       = 0x02FC8, // 4.0.6a 13623
     CMSG_AUTOSTORE_LOOT_ITEM                         = 0x0B2E8, // 4.0.6a 13623
+    CMSG_AUTOSTORE_LOOT_CURRENCY                     = 0x00991, // 4.0.6a 13623
     CMSG_STORE_LOOT_IN_SLOT                          = 0x07FCC, // 4.0.6a 13623
     CMSG_AUTOEQUIP_ITEM                              = 0x0E1C0, // 4.0.6a 13623
     CMSG_AUTOSTORE_BAG_ITEM                          = 0x0EDCC, // 4.0.6a 13623
@@ -1237,8 +1239,8 @@ enum Opcodes
     SMSG_MOVE_GRAVITY_ENABLE                         = 0x1021B, // Unknown opcode ID
     CMSG_MOVE_GRAVITY_ENABLE_ACK                     = 0x07DE8, // 4.0.6a 13623
     SMSG_MOVE_LEVITATING                             = 0x0B8AC, // 4.0.6a 13623
-    SMSG_SPLINE_MOVE_UNKNOWN_1235                    = 0x1021E, // Unknown opcode ID
-    SMSG_SPLINE_MOVE_UNKNOWN_1236                    = 0x1022F, // 4.0.6a 13623
+    SMSG_SPLINE_MOVE_GRAVITY_DISABLE                 = 0x1021E, // Unknown opcode ID
+    SMSG_SPLINE_MOVE_GRAVITY_ENABLE                  = 0x1022F, // 4.0.6a 13623
     CMSG_EQUIPMENT_SET_USE                           = 0x0E8A0, // 4.0.6a 13623
     SMSG_EQUIPMENT_SET_USE_RESULT                    = 0x076AC, // 4.0.6a 13623
     SMSG_UNKNOWN_1240                                = 0x0B8E0, // 4.0.6a 13623

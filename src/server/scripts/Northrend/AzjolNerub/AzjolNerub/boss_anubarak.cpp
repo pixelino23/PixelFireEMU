@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -267,7 +267,7 @@ public:
                         }
                     } else DatterTimer -= diff;
 
-                    if(me->HasAura(SPELL_LEECHING_SWARM))
+                    if (me->HasAura(SPELL_LEECHING_SWARM))
                         me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 }
 
@@ -283,7 +283,7 @@ public:
                 if (((UndergroundPhase == 0 && HealthBelowPct(75))
                     || (UndergroundPhase == 1 && HealthBelowPct(50))
                     || (UndergroundPhase == 2 && HealthBelowPct(25)))
-                    && !me->HasUnitState(UNIT_STAT_CASTING))
+                    && !me->HasUnitState(UNIT_STATE_CASTING))
                 {
                     GuardianSummoned = false;
                     VenomancerSummoned = false;
