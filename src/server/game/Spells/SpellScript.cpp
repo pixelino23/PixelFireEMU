@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -18,9 +18,9 @@
 
 #include "Spell.h"
 #include "SpellAuras.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
+#include "SpellAuraEffects.h"
 
 #include <string>
 
@@ -545,6 +545,14 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!entry->HasAreaAuraEffect())
             sLog->outError("TSCR: Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
+    for (std::list<AuraDispelHandler>::iterator itr = OnDispel.begin(); itr != OnDispel.end();  ++itr)
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `OnDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
+    for (std::list<AuraDispelHandler>::iterator itr = AfterDispel.begin(); itr != AfterDispel.end();  ++itr)
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
@@ -612,6 +620,16 @@ AuraScript::CheckAreaTargetHandler::CheckAreaTargetHandler(AuraCheckAreaTargetFn
 bool AuraScript::CheckAreaTargetHandler::Call(AuraScript* auraScript, Unit* _target)
 {
     return (auraScript->*pHandlerScript)(_target);
+}
+
+AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelFnType _pHandlerScript)
+{
+    pHandlerScript = _pHandlerScript;
+}
+
+void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _dispelInfo)
+{
+    (auraScript->*pHandlerScript)(_dispelInfo);
 }
 
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
@@ -720,7 +738,7 @@ void AuraScript::EffectManaShieldHandler::Call(AuraScript* auraScript, AuraEffec
 }
 
 AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType _pEffectProcScript, uint8 _effIndex, uint16 _effName)
-: AuraScript::EffectBase(_effIndex, _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
 {
     pEffectProcScript = _pEffectProcScript;
 }
@@ -980,7 +998,7 @@ uint32 MasteryScript::GetMasteryBaseAmount()
     {
         if (SpellInfo const* spellInfo = GetAura()->GetSpellInfo())
             return spellInfo->Effects[dummyEffectIndex].BasePoints ? spellInfo->Effects[dummyEffectIndex].BasePoints : defaultBaseAmount;
-        //if (AuraEffect* effect = GetAura()->GetEffect(dummyEffectIndex))
+        // if (AuraEffect* effect = GetAura()->GetEffect(dummyEffectIndex))
         //    return effect->GetBaseAmount()/*GetAmount()*/;
     }
     return defaultBaseAmount;

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -53,6 +53,7 @@
 #include "GameObjectAI.h"
 #include "Group.h"
 #include "AccountMgr.h"
+#include "Guild.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {
@@ -124,14 +125,14 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if ((unit && unit->GetCreatureInfo()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
+    if ((unit && unit->GetCreatureTemplate()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
         if (unit)
-            unit->LastUsedScriptID = unit->GetCreatureInfo()->ScriptID;
+            unit->LastUsedScriptID = unit->GetCreatureTemplate()->ScriptID;
         if (go)
             go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
         _player->PlayerTalkClass->SendCloseGossip();
@@ -546,6 +547,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
     stmt->setString(0, friendName);
 
     _addFriendCallback.SetParam(friendNote);
+    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
 void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
@@ -1059,7 +1061,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
                 sLog->outDetail("MISC: Added Item %u into button %u", action, button);
                 break;
             default:
-                sLog->outError("MISC: Unknown action button type %u for action %u into button %u", type, action, button);
+                sLog->outError("MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
                 return;
         }
         GetPlayer()->addActionButton(button, action, type);
@@ -1224,16 +1226,16 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     }
 
     player->BuildEnchantmentsInfoData(&data);
-    /*if (uint32 guildId = player->GetGuildId())
+    if (uint32 guildId = player->GetGuildId())
     {
-        if (Guild* guild = sObjectMgr->GetGuildById(guildId))
+        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
         {
-            data << uint64(guild->GetId()); // not sure
-            data << uint32(guild->GetLevel()); // guild level
-            data << uint64(player->GetGUID()); // not sure
+            data << uint64(guild->GetId());           // guild id
+            data << uint32(guild->GetLevel());        // guild level
+            data << uint64(player->GetGUID());        // not sure
             data << uint32(guild->GetMembersCount()); // number of members
         }
-    }*/
+    }
     SendPacket(&data);
 }
 
@@ -1482,20 +1484,11 @@ void WorldSession::HandleTimeSyncResp(WorldPacket & recv_data)
 void WorldSession::HandleResetInstancesOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
-    Group* group = _player->GetGroup();
-    if (group)
-    {
+    if (Group* group = _player->GetGroup())
         if (group->IsLeader(_player->GetGUID()))
-        {
             group->ResetInstances(INSTANCE_RESET_ALL, false, _player);
-            group->ResetInstances(INSTANCE_RESET_ALL, true, _player);
-        }
-    }
     else
-    {
         _player->ResetInstances(INSTANCE_RESET_ALL, false);
-        _player->ResetInstances(INSTANCE_RESET_ALL, true);
-    }
 }
 
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
@@ -1515,7 +1508,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
         return;
 
     // cannot reset while in an instance
-    Map* map = _player->GetMap();
+    Map* map = _player->FindMap();
     if (map && map->IsDungeon())
     {
         sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
@@ -1536,8 +1529,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
                 if (!pGroupGuy->IsInMap(pGroupGuy))
                     return;
 
-                map = pGroupGuy->GetMap();
-                if (map && map->IsNonRaidDungeon())
+                if (pGroupGuy->GetMap()->IsNonRaidDungeon())
                 {
                     sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!", _player->GetGUIDLow(), pGroupGuy->GetName(), pGroupGuy->GetGUIDLow());
                     return;
@@ -1570,7 +1562,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
     }
 
     // cannot reset while in an instance
-    Map* map = _player->GetMap();
+    Map* map = _player->FindMap();
     if (map && map->IsDungeon())
     {
         sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
@@ -1594,8 +1586,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
                 if (!pGroupGuy->IsInMap(pGroupGuy))
                     return;
 
-                map = pGroupGuy->GetMap();
-                if (map && map->IsRaid())
+                if (pGroupGuy->GetMap()->IsRaid())
                 {
                     sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
                     return;

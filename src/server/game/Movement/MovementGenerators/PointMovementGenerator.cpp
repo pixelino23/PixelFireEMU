@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -32,7 +32,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     if (!unit.IsStopped())
         unit.StopMoving();
 
-    unit.AddUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    unit.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z);
     if (speed > 0.0f)
@@ -46,20 +46,20 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     if (!&unit)
         return false;
 
-    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
+    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
-        unit.ClearUnitState(UNIT_STAT_ROAMING_MOVE);
+        unit.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         return true;
     }
 
-    unit.AddUnitState(UNIT_STAT_ROAMING_MOVE);
+    unit.AddUnitState(UNIT_STATE_ROAMING_MOVE);
     return !unit.movespline->Finalized();
 }
 
 template<class T>
 void PointMovementGenerator<T>:: Finalize(T &unit)
 {
-    unit.ClearUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    unit.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 
     if (unit.movespline->Finalized())
         MovementInform(unit);
@@ -71,7 +71,7 @@ void PointMovementGenerator<T>::Reset(T &unit)
     if (!unit.IsStopped())
         unit.StopMoving();
 
-    unit.AddUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    unit.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 }
 
 template<class T>
@@ -107,7 +107,7 @@ void AssistanceMovementGenerator::Finalize(Unit &unit)
         unit.GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit &unit, const uint32)
+bool EffectMovementGenerator::Update(Unit &unit, const uint32&)
 {
     return !unit.movespline->Finalized();
 }
@@ -117,10 +117,10 @@ void EffectMovementGenerator::Finalize(Unit &unit)
     if (unit.GetTypeId() != TYPEID_UNIT)
         return;
 
-    if (((Creature&)unit).AI() && unit.movespline->Finalized())
+    if (((Creature&)unit).AI())
         ((Creature&)unit).AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
     // Need restore previous movement since we have no proper states system
-    //if (unit.isAlive() && !unit.HasUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_FLEEING))
+    //if (unit.isAlive() && !unit.HasUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_FLEEING))
     //{
     //    if (Unit * victim = unit.getVictim())
     //        unit.GetMotionMaster()->MoveChase(victim);

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -599,7 +599,7 @@ inline bool CreatureAI::_EnterEvadeMode()
 
 inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
-    if (!victim || (me->HasUnitState(UNIT_STAT_CASTING) && !triggered))
+    if (!victim || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
         return;
 
     me->CastSpell(victim, spellId, triggered);
@@ -612,7 +612,7 @@ inline void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
 
 inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
 {
-    if (!triggered && me->HasUnitState(UNIT_STAT_CASTING))
+    if (!triggered && me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
     me->CastSpell((Unit*)NULL, spellId, triggered);

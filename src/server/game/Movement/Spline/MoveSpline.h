@@ -24,6 +24,23 @@
 
 namespace Movement
 {
+    enum
+    {
+        minimal_duration = 1,
+    };
+
+    struct CommonInitializer
+    {
+        CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) {}
+        float velocityInv;
+        int32 time;
+        inline int32 operator()(Spline<int32>& s, int32 i)
+        {
+            time += (s.SegLength(i) * velocityInv);
+            return time;
+        }
+    };
+
     struct Location : public Vector3
     {
         Location() : orientation(0) {}
@@ -47,7 +64,6 @@ namespace Movement
             Result_NextCycle    = 0x04,
             Result_NextSegment  = 0x08,
         };
-        #pragma region fields
         friend class PacketBuilder;
     protected:
         MySpline        spline;
@@ -88,7 +104,6 @@ namespace Movement
         void _Finalize();
         void _Interrupt() { splineflags.done = true;}
 
-        #pragma endregion
     public:
 
         void Initialize(const MoveSplineInitArgs&);

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -71,7 +71,7 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     unit.StopMoving();
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.AddUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
@@ -94,19 +94,19 @@ void ConfusedMovementGenerator<T>::Reset(T &unit)
     i_nextMove = 1;
     i_nextMoveTime.Reset(0);
     unit.StopMoving();
-    unit.AddUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
 bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 {
-    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
+    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
 
     if (i_nextMoveTime.Passed())
     {
         // currently moving, update location
-        unit.AddUnitState(UNIT_STAT_CONFUSED_MOVE);
+        unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
         if (unit.movespline->Finalized())
         {
@@ -121,7 +121,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         if (i_nextMoveTime.Passed() )
         {
             // start moving
-            unit.AddUnitState(UNIT_STAT_CONFUSED_MOVE);
+            unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
             ASSERT( i_nextMove <= MAX_CONF_WAYPOINTS );
             float x = i_waypoints[i_nextMove][0];
@@ -141,14 +141,14 @@ template<>
 void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
 void ConfusedMovementGenerator<Creature>::Finalize(Creature &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
     if (unit.getVictim())
         unit.SetTarget(unit.getVictim()->GetGUID());
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -149,7 +149,7 @@ enum ReputationRank
 #define MIN_REPUTATION_RANK (REP_HATED)
 #define MAX_REPUTATION_RANK 8
 
-#define MAX_SPILLOVER_FACTIONS 4
+#define MAX_SPILLOVER_FACTIONS 5
 
 enum MoneyConstants
 {
@@ -1878,14 +1878,14 @@ enum Emote
     EMOTE_STATE_AT_EASE                = 313,
     EMOTE_STATE_READY1H                = 333,
     EMOTE_STATE_SPELLKNEELSTART        = 353,
+    EMOTE_STATE_FISHING                = 362,
+    EMOTE_ONESHOT_FISHING              = 363,
     EMOTE_STATE_SUBMERGED              = 373,
     EMOTE_ONESHOT_SUBMERGE             = 374,
     EMOTE_STATE_READY2H                = 375,
     EMOTE_STATE_READYBOW               = 376,
     EMOTE_ONESHOT_MOUNTSPECIAL         = 377,
     EMOTE_STATE_TALK                   = 378,
-    EMOTE_STATE_FISHING                = 379,
-    EMOTE_ONESHOT_FISHING              = 380,
     EMOTE_ONESHOT_LOOT                 = 381,
     EMOTE_STATE_WHIRLWIND              = 382,
     EMOTE_STATE_DROWNED                = 383,
@@ -3269,6 +3269,23 @@ struct MmapTileHeader
 
     MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
         mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+};
+
+enum ActivateTaxiReply
+{
+    ERR_TAXIOK                      = 0,
+    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
+    ERR_TAXINOSUCHPATH              = 2,
+    ERR_TAXINOTENOUGHMONEY          = 3,
+    ERR_TAXITOOFARAWAY              = 4,
+    ERR_TAXINOVENDORNEARBY          = 5,
+    ERR_TAXINOTVISITED              = 6,
+    ERR_TAXIPLAYERBUSY              = 7,
+    ERR_TAXIPLAYERALREADYMOUNTED    = 8,
+    ERR_TAXIPLAYERSHAPESHIFTED      = 9,
+    ERR_TAXIPLAYERMOVING            = 10,
+    ERR_TAXISAMENODE                = 11,
+    ERR_TAXINOTSTANDING             = 12
 };
 
 enum NavTerrain

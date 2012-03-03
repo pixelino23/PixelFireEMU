@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -374,7 +374,7 @@ bool ChatHandler::HandleGMTicketEscalateCommand(const char *args)
 
     uint32 ticketId = atoi(args);
     GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
-    if (!ticket || !ticket->IsClosed() || ticket->IsCompleted() || ticket->GetEscalatedStatus() != TICKET_UNASSIGNED)
+    if (!ticket || ticket->IsClosed() || ticket->IsCompleted() || ticket->GetEscalatedStatus() != TICKET_UNASSIGNED)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;
@@ -397,7 +397,7 @@ bool ChatHandler::HandleGMTicketCompleteCommand(const char* args)
 
     uint32 ticketId = atoi(args);
     GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
-    if (!ticket || !ticket->IsClosed() || ticket->IsCompleted())
+    if (!ticket || ticket->IsClosed() || ticket->IsCompleted())
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;
@@ -424,7 +424,7 @@ inline bool ChatHandler::_HandleGMTicketResponseAppendCommand(const char* args, 
         return false;
 
     GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
-    if (!ticket || !ticket->IsClosed())
+    if (!ticket || ticket->IsClosed())
     {
         PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;

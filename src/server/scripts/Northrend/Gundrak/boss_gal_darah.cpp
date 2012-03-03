@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -148,7 +148,7 @@ public:
                             DoScriptText(SAY_TRANSFORM_1, me);
                             uiTransformationTimer = 5*IN_MILLISECONDS;
                             bStartOfTransformation = true;
-                            me->ClearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
                         }
                         else
@@ -158,7 +158,7 @@ public:
                             if (bStartOfTransformation)
                             {
                                 bStartOfTransformation = false;
-                                me->AddUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                                 me->SetReactState(REACT_PASSIVE);
                             }
                         }
@@ -191,7 +191,7 @@ public:
                             DoScriptText(SAY_TRANSFORM_2, me);
                             uiTransformationTimer = 9*IN_MILLISECONDS;
                             bStartOfTransformation = true;
-                            me->ClearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
                         }
                         else
@@ -201,7 +201,7 @@ public:
                             if (bStartOfTransformation)
                             {
                                 bStartOfTransformation = false;
-                                me->AddUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                                 me->SetReactState(REACT_PASSIVE);
                             }
                         }

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -53,18 +53,18 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature &creature)
 void WaypointMovementGenerator<Creature>::Initialize(Creature &creature)
 {
     LoadPath(creature);
-    creature.AddUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 }
 
 void WaypointMovementGenerator<Creature>::Finalize(Creature &creature)
 {
-    creature.ClearUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
     creature.SetWalk(false);
 }
 
 void WaypointMovementGenerator<Creature>::Reset(Creature &creature)
 {
-    creature.AddUnitState(UNIT_STAT_ROAMING|UNIT_STAT_ROAMING_MOVE);
+    creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
     StartMoveNow(creature);
 }
 
@@ -75,7 +75,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature& creature)
     if (m_isArrivalDone)
         return;
 
-    creature.ClearUnitState(UNIT_STAT_ROAMING_MOVE);
+    creature.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
     m_isArrivalDone = true;
 
     if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
@@ -112,7 +112,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
     const WaypointData *node = i_path->at(i_currentNode);
     m_isArrivalDone = false;
 
-    creature.AddUnitState(UNIT_STAT_ROAMING_MOVE);
+    creature.AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(creature);
     init.MoveTo(node->x, node->y, node->z);
@@ -134,9 +134,9 @@ bool WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint3
 {
     // Waypoint movement can be switched on/off
     // This is quite handy for escort quests and other stuff
-    if (creature.HasUnitState(UNIT_STAT_NOT_MOVE))
+    if (creature.HasUnitState(UNIT_STATE_NOT_MOVE))
     {
-        creature.ClearUnitState(UNIT_STAT_ROAMING_MOVE);
+        creature.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         return true;
     }
     // prevent a crash at empty waypoint path.
@@ -201,10 +201,10 @@ void FlightPathMovementGenerator::Initialize(Player &player)
     InitEndGridInfo();
 }
 
-void FlightPathMovementGenerator::Finalize(Player & player)
+void FlightPathMovementGenerator::Finalize(Player& player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
-    player.ClearUnitState(UNIT_STAT_IN_FLIGHT);
+    player.ClearUnitState(UNIT_STATE_IN_FLIGHT);
 
     player.Dismount();
     player.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
@@ -212,8 +212,6 @@ void FlightPathMovementGenerator::Finalize(Player & player)
     if (player._taxi.empty())
     {
         player.getHostileRefManager().setOnlineOfflineState(true);
-        if (player.pvpInfo.inHostileArea)
-            player.CastSpell(&player, 2479, true);
 
         // update z position to ground and orientation for landing point
         // this prevent cheating with landing  point at lags
@@ -227,7 +225,7 @@ void FlightPathMovementGenerator::Finalize(Player & player)
 void FlightPathMovementGenerator::Reset(Player & player)
 {
     player.getHostileRefManager().setOnlineOfflineState(false);
-    player.AddUnitState(UNIT_STAT_IN_FLIGHT);
+    player.AddUnitState(UNIT_STATE_IN_FLIGHT);
     player.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 
     Movement::MoveSplineInit init(player);
@@ -243,7 +241,7 @@ void FlightPathMovementGenerator::Reset(Player & player)
     init.Launch();
 }
 
-bool FlightPathMovementGenerator::Update(Player &player, const uint32 diff)
+bool FlightPathMovementGenerator::Update(Player &player, const uint32& diff)
 {
     uint32 pointId = (uint32)player.movespline->currentPathIdx();
     if (pointId > i_currentNode)
