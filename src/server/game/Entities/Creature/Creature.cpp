@@ -142,7 +142,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapCreature(),
 lootForPickPocketed(false), lootForBody(false), _groupLootTimer(0), lootingGroupLowGUID(0),
-_PlayerDamageReq(0), _lootMoney(0), _lootRecipient(0), _lootRecipientGroup(0), _corpseRemoveTime(0), _respawnTime(0),
+_PlayerDamageReq(0), _lootRecipient(0), _lootRecipientGroup(0), _corpseRemoveTime(0), _respawnTime(0),
 _respawnDelay(300), _corpseDelay(60), _respawnradius(0.0f), _reactState(REACT_AGGRESSIVE),
 _defaultMovementType(IDLE_MOTION_TYPE), _DBTableGuid(0), _equipmentId(0), _AlreadyCallAssistance(false),
 _AlreadySearchedAssistance(false), _regenHealth(true), _AI_locked(false), _meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
@@ -1043,6 +1043,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     // data->guid = guid must not be updated at save
     data.id = GetEntry();
     data.mapid = mapid;
+    data.spawnMask = spawnMask;
     data.phaseMask = phaseMask;
     data.displayid = displayId;
     data.equipmentId = GetEquipmentId();
@@ -1059,7 +1060,6 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     // prevent add data integrity problems
     data.movementType = !_respawnradius && GetDefaultMovementType() == RANDOM_MOTION_TYPE
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
-    data.spawnMask = spawnMask;
     data.npcflag = npcflag;
     data.unit_flags = unit_flags;
     data.dynamicflags = dynamicflags;
@@ -1072,25 +1072,25 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     std::ostringstream ss;
     ss << "INSERT INTO creature VALUES ("
         << _DBTableGuid << ','
-        << GetEntry() << ','
-        << mapid << ','
-        << uint32(spawnMask) << ','                         // cast to prevent save as symbol
-        << uint16(GetPhaseMask()) << ','                    // prevent out of range error
-        << displayId << ','
-        << GetEquipmentId() << ','
-        << GetPositionX() << ','
-        << GetPositionY() << ','
-        << GetPositionZ() << ','
-        << GetOrientation() << ','
-        << _respawnDelay << ','                            //respawn time
-        << (float) _respawnradius << ','                   //spawn distance (float)
-        << (uint32) (0) << ','                              //currentwaypoint
-        << GetHealth() << ','                               //curhealth
-        << GetPower(POWER_MANA) << ','                      //curmana
-        << GetDefaultMovementType() << ','                  //default movement generator type
-        << npcflag << ','
-        << unit_flags << ','
-        << dynamicflags << ')';
+        << data.id << ','
+        << data.mapid << ','
+        << uint32(data.spawnMask) << ','             // cast to prevent save as symbol
+        << uint16(data.phaseMask) << ','             // prevent out of range error
+        << data.displayid << ','
+        << data.equipmentId << ','
+        << data.posX << ','
+        << data.posY << ','
+        << data.posZ << ','
+        << data.orientation << ','
+        << data.spawntimesecs << ','                 //respawn time
+        << (float) data.spawndist << ','             //spawn distance (float)
+        << data.currentwaypoint << ','               //currentwaypoint
+        << data.curhealth << ','                     //curhealth
+        << data.curmana << ','                       //curmana
+        << data.movementType << ','                  //default movement generator type
+        << data.npcflag << ','
+        << data.unit_flags << ','
+        << data.dynamicflags << ')';
 
     trans->Append(ss.str().c_str());
 
@@ -2391,24 +2391,24 @@ bool Creature::IsDungeonBoss() const
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
-void Creature::SetWalk(bool enable)
+bool Creature::SetWalk(bool enable)
 {
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    if (!Unit::SetWalk(enable))
+        return false;
+
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_WALK_MODE : SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, true);
+    return true;
 }
 
-void Creature::SetLevitate(bool enable)
+bool Creature::SetLevitate(bool enable)
 {
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    if (!Unit::SetLevitate(enable))
+        return false;
+
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, true);
+    return true;
 }

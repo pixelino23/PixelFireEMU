@@ -95,18 +95,19 @@ class AuraEffect
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
-        uint8 const m_effIndex;
         int32 const m_baseAmount;
 
         int32 m_amount;
-        bool m_canBeRecalculated;
 
         SpellModifier* m_spellmod;
 
-        bool m_isPeriodic;
         int32 m_periodicTimer;
         int32 m_amplitude;
         uint32 m_tickNumber;
+
+        uint8 const m_effIndex;
+        bool m_canBeRecalculated;
+        bool m_isPeriodic;
     private:
         bool IsPeriodicTickCrit(Unit* target, Unit const* caster) const;
 
@@ -157,6 +158,7 @@ class AuraEffect
         //  skills & talents
         void HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModCanCastWhileWalking(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -212,6 +214,7 @@ class AuraEffect
         void HandleModSpellHealingPercentFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellDamagePercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHealingPercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModSpellPowerPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleModHealingDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -281,7 +284,7 @@ class AuraEffect
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleActionbarSpellOverride(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSwapSpells(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers

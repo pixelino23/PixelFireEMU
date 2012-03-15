@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GuildAchievementMgr.h"
 #include "Common.h"
 #include "DBCEnums.h"
 #include "ObjectMgr.h"
@@ -278,7 +277,7 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
 
     m_achievementPoints += achievement->points;
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, player);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, _player);
 }
 
 void GuildAchievementMgr::SendAllAchievementData()

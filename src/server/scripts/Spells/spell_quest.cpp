@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -945,7 +946,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
  */
 enum eBattleStandard
 {
-    NPC_KING_OF_THE_MOUNTAINT_KC					= 31766,
+    NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766,
 };
 class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
 {

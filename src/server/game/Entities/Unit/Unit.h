@@ -1434,7 +1434,6 @@ class Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
-        bool IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const;
         void GetPartyMemberInDist(std::list<Unit*> &units, float dist);
         void GetPartyMembers(std::list<Unit*> &units);
         void GetRaidMember(std::list<Unit*> &units, float dist);
@@ -1659,6 +1658,8 @@ class Unit : public WorldObject
         void SendMovementFlagUpdate();
         bool IsLevitating() const { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_LEVITATING);}
         bool IsWalking() const { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
+        virtual bool SetWalk(bool enable);
+        virtual bool SetLevitate(bool enable);
 
         void SetInFront(Unit const* target);
         void SetFacingTo(float ori);
@@ -1904,6 +1905,8 @@ class Unit : public WorldObject
         // we can skip channeled or delayed checks using flags
         bool IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
 
+        bool CanCastWhileWalking(uint32 spell_id);
+
         // set withDelayed to true to interrupt delayed spells too
         // delayed+channeled spells are always interrupted
         void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true);
@@ -2035,7 +2038,8 @@ class Unit : public WorldObject
         uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
         bool HasAuraState(AuraStateType flag, SpellInfo const *spellProto = NULL, Unit const* Caster = NULL) const ;
         void UnsummonAllTotems();
-        Unit* SelectMagnetTarget(Unit* victim, SpellInfo const *spellInfo = NULL);
+        Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
+        Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
         int32 SpellBaseDamageBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseHealingBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit* victim);
@@ -2256,8 +2260,7 @@ class Unit : public WorldObject
         Spell* m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
         SpellModList m_spellMods[MAX_SPELLMOD];
 
-        int32 eclipse;
-        int32 GetEclipsePower() {return eclipse;};
+        int32 GetEclipsePower() {return _eclipse;};
         void SetEclipsePower(int32 power);
 
         uint32 m_heal_done[120];
@@ -2270,17 +2273,17 @@ class Unit : public WorldObject
         void ResetDamageDoneInPastSecs(uint32 secs);
         void ResetHealingDoneInPastSecs(uint32 secs);
 
-        float m_AbsorbHeal;
-        float GetAbsorbHeal() const { return m_AbsorbHeal; };
-        void SetAbsorbHeal(float heal) { m_AbsorbHeal = heal; };
+        float GetHealAbsorb() const { return _healAbsorb; };
+        void SetHealAbsorb(float absorb) { _healAbsorb = absorb; };
 
         // Movement info
-        Movement::MoveSpline * movespline;
+        Movement::MoveSpline* movespline;
 
     protected:
         explicit Unit (bool isWorldObject);
 
-        UnitAI *i_AI, *i_disabledAI;
+        UnitAI* i_AI;
+        UnitAI* i_disabledAI;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
@@ -2341,8 +2344,8 @@ class Unit : public WorldObject
 
         ThreatManager m_ThreatManager;
 
-        Vehicle *m_vehicle;
-        Vehicle *_vehicleKit;
+        Vehicle* m_vehicle;
+        Vehicle* _vehicleKit;
 
         uint32 m_unitTypeMask;
 
@@ -2350,10 +2353,11 @@ class Unit : public WorldObject
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         void DisableSpline();
+
     private:
         bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura * aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const *& spellProcEvent);
         bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleHasteAuraProc(Unit* pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleModDamagePctTakenAuraProc(Unit *victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleSpellCritChanceAuraProc(Unit* victim, uint32 damage, AuraEffect* triggredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleObsModEnergyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
@@ -2398,6 +2402,10 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;
         bool _targetLocked; // locks the target during spell cast for proper facing
+
+        int32 _eclipse;
+
+        float _healAbsorb;
 };
 
 namespace Trinity
@@ -2485,8 +2493,10 @@ template <class T> T Unit::ApplySpellMod(uint32 spellId, SpellModOp op, T &basev
 
         DropModCharge(mod, spell);
     }
+
     float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
     basevalue = T((float)basevalue + diff);
+
     return T(diff);
 }
 #endif

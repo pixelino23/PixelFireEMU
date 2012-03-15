@@ -749,7 +749,7 @@ public:
             if (!Trigger) return;
 
             Trigger->SetSpeed(MOVE_WALK, 3);
-            Trigger->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            Trigger->SetWalk(true);
             Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
             // Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -866,7 +866,7 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                 break;
             case 9: // land
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->StopMoving();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 for (uint8 i = 0; i < 2; ++i)
@@ -1413,8 +1413,8 @@ public:
                     instance->HandleGameObject(DoorGUID[i], false);
                     // JustCreated = false;
                 }
-				else
-				{ // open all doors, raid wiped
+                else
+                { // open all doors, raid wiped
                     instance->HandleGameObject(GateGUID, true);
                     WalkCount = 1; // skip first wp
 
@@ -1495,7 +1495,7 @@ public:
             instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
             for (uint8 i = 0; i < 2; ++i)
 
-			instance->HandleGameObject(DoorGUID[i], false);
+            instance->HandleGameObject(DoorGUID[i], false);
             if (GETCRE(Illidan, IllidanGUID))
             {
                 Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
@@ -1513,11 +1513,11 @@ public:
             me->setActive(true);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-			if (!JustCreated)
+            if (!JustCreated)
                 return;
             float x, y, z;
 
-			if (GETGO(Gate, GateGUID))
+            if (GETGO(Gate, GateGUID))
                 Gate->GetPosition(x, y, z);
             else
                 return; // if door not spawned, don't crash server
@@ -1539,7 +1539,7 @@ public:
 
         void BeginWalk()
         {
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(false);
             me->SetSpeed(MOVE_RUN, 1.0f);
             me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
         }
@@ -1870,7 +1870,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-    me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    me->SetLevitate(false);
     me->setActive(false);
     Summons.DespawnAll();
 }
@@ -1933,7 +1933,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         // Equip our warglaives!
         SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
         me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        me->SetWalk(false);
         break;
     case 9:
         if (GETCRE(Akama, AkamaGUID))

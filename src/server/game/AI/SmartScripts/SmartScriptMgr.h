@@ -473,10 +473,12 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
-    SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
-    SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,
+    SMART_ACTION_SET_RANDOM_HEALTH                  = 99,     // MinPctHealth, MaxPctHealth
+    SMART_ACTION_GO_SET_LOOT_STATE                  = 100,     // state
+    SMART_ACTION_SEND_TARGET_TO_TARGET              = 101,
+    SMART_ACTION_SET_MANA                           = 102,     // Mana_Ammount
 
-    SMART_ACTION_END                                = 101,
+    SMART_ACTION_END                                = 103,
 };
 
 struct SmartAction
@@ -898,6 +900,15 @@ struct SmartAction
             uint32 param5;
             uint32 param6;
         } raw;
+        struct
+        {
+            uint32 MinPct;
+            uint32 MaxPct;
+        } health;
+        struct
+        {
+            uint32 Mana;
+        } mana;
     };
 };
 
@@ -1179,7 +1190,7 @@ enum SmartCastFlags
     //CAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
     //CAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
     //CAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
-    //CAST_AURA_NOT_PRESENT       = 0x20,                     //Only casts the spell if the target does not have an aura from the spell
+    SMARTCAST_AURA_NOT_PRESENT       = 0x20,                     //Only casts the spell if the target does not have an aura from the spell
 };
 
 // one line in DB is one event
@@ -1371,10 +1382,10 @@ class SmartAIMgr
             if (t > 0 && v1 >= 0 && v2 >= 0 && v3 >= 0)
             {
                 Condition cond;
-                cond.mConditionType = ConditionType(t);
-                cond.mConditionValue1 = uint32(v1);
-                cond.mConditionValue2 = uint32(v2);
-                cond.mConditionValue3 = uint32(v3);
+                cond.ConditionType = ConditionTypes(t);
+                cond.ConditionValue1 = uint32(v1);
+                cond.ConditionValue2 = uint32(v2);
+                cond.ConditionValue3 = uint32(v3);
                 if (!sConditionMgr->isConditionTypeValid(&cond))
                     error = true;
             }

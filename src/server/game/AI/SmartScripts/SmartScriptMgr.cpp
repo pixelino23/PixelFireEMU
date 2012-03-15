@@ -62,25 +62,17 @@ void SmartWaypointMgr::LoadFromDB()
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
 
-        WayPoint* wp = new WayPoint(id, x, y, z);
-
         if (last_entry != entry)
         {
-            path = new WPPath;
+            waypoint_map[entry] = new WPPath();
             last_id = 1;
+            count++;
         }
         if (last_id != id)
-        {
             sLog->outErrorDb("SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
-        }
         last_id++;
-        (*path)[id] = wp;
+        (*waypoint_map[entry])[id] = new WayPoint(id, x, y, z);
 
-        if (last_entry != entry)
-        {
-            count++;
-            waypoint_map[entry] = path;
-        }
         last_entry = entry;
         total++;
     }
@@ -801,6 +793,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
         case SMART_ACTION_JUMP_TO_POS:
         case SMART_ACTION_SEND_GOSSIP_MENU:
+        case SMART_ACTION_SET_RANDOM_HEALTH:
+        case SMART_ACTION_SET_MANA:
         case SMART_ACTION_GO_SET_LOOT_STATE:
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
             break;

@@ -559,8 +559,8 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
     bool limitReached = false;
 
-    GameTeleMap const & teleMap = sObjectMgr->GetGameTeleMap();
-    for (GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+    GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
+    for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
     {
         GameTele const* tele = &itr->second;
 
@@ -764,6 +764,17 @@ bool ChatHandler::HandleGroupSummonCommand(const char* args)
         _session->GetPlayer()->GetClosePoint(x, y, z, player->GetObjectSize());
         player->TeleportTo(_session->GetPlayer()->GetMapId(), x, y, z, player->GetOrientation());
     }
+
+    return true;
+}
+
+bool ChatHandler::HandleGmNote(const char* args)
+
+{
+    if(!*args)
+
+        return false;
+    SendSysMessage(LANG_IS_NOTE);
 
     return true;
 }

@@ -25,7 +25,7 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/Message_Block.h>
 #include <ace/Basic_Types.h>
-#include "Common.h"
+#include "Define.h"
 
 class RealmSocket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
 {
@@ -56,7 +56,7 @@ public:
 
     const std::string& getRemoteAddress(void) const;
 
-    const uint16 getRemotePort(void) const;
+    uint16 getRemotePort(void) const;
 
     virtual int open(void *);
 
