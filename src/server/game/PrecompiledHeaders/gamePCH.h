@@ -62,7 +62,6 @@
 #include "HostileRefManager.h"
 #include "ThreatManager.h"
 #include "DisableMgr.h"
-#include "ScriptSystem.h"
 #include "ConditionMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptLoader.h"
