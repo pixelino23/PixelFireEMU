@@ -73,10 +73,10 @@ void Vehicle::Install()
             default:
                 for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
                 {
-                    if (!creature->_spells[i])
+                    if (!creature->m_spells[i])
                         continue;
 
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->_spells[i]);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[i]);
                     if (!spellInfo)
                         continue;
 

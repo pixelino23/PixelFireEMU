@@ -9751,7 +9751,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
             }
             else if (Pet* pet = ToCreature()->ToPet())
             {
-                for (PetSpellMap::const_iterator itr = pet->_spells.begin(); itr != pet->_spells.end(); ++itr)
+                for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
                 {
                     if (itr->second.state == PETSPELL_REMOVED)
                         continue;
@@ -13916,7 +13916,7 @@ void CharmInfo::InitPossessCreateSpells()
     {
         for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
-            uint32 spellId = m_unit->ToCreature()->_spells[i];
+            uint32 spellId = m_unit->ToCreature()->m_spells[i];
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
             if (spellInfo && !(spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
             {
@@ -13941,7 +13941,7 @@ void CharmInfo::InitCharmCreateSpells()
 
     for (uint32 x = 0; x < MAX_SPELL_CHARM; ++x)
     {
-        uint32 spellId = m_unit->ToCreature()->_spells[x];
+        uint32 spellId = m_unit->ToCreature()->m_spells[x];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
 
         if (!spellInfo || spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)

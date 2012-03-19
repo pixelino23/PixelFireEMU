@@ -103,7 +103,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
         if (HasEscortState(STATE_ESCORT_ESCORTING) && AssistPlayerInCombat(who))
             return;
 
-        if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+        if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
             return;
 
         if (me->IsHostileTo(who))

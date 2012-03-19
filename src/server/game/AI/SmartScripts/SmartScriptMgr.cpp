@@ -28,6 +28,8 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "GameEventMgr.h"
+#include "CreatureTextMgr.h"
+
 #include "SmartScriptMgr.h"
 
 void SmartWaypointMgr::LoadFromDB()
@@ -36,7 +38,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     waypoint_map.clear();
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_SMARTAI_WP);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -48,7 +50,6 @@ void SmartWaypointMgr::LoadFromDB()
 
     uint32 count = 0;
     uint32 total = 0;
-    WPPath* path = NULL;
     uint32 last_entry = 0;
     uint32 last_id = 1;
 
@@ -89,7 +90,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_SMART_SCRIPTS);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -552,13 +553,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_SET_EMOTE_STATE:
         case SMART_ACTION_PLAY_EMOTE:
-            if (!IsEmoteValid(e, e.action.emote.emote))
-                return false;
+            if (!IsEmoteValid(e, e.action.emote.emote)) return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
         case SMART_ACTION_ADD_QUEST:
-            if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
-                return false;
+            if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest)) return false;
             break;
         case SMART_ACTION_ACTIVATE_TAXI:
             {

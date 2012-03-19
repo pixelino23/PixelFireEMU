@@ -24,7 +24,6 @@
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "ConditionMgr.h"
-#include "CreatureTextMgr.h"
 #include "Spell.h"
 #include "DB2Stores.h"
 //#include "SmartScript.h"
@@ -86,7 +85,7 @@ enum SMART_EVENT
 {
     SMART_EVENT_UPDATE_IC                = 0,       //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
     SMART_EVENT_UPDATE_OOC               = 1,       //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
-    SMART_EVENT_HEALT_PCT                = 2,       //1             // HPMin%, HPMax%, RepeatMin, RepeatMax
+    SMART_EVENT_HEALT_PCT                = 2,       //1             // HPMin%, HPMax%,  RepeatMin, RepeatMax
     SMART_EVENT_MANA_PCT                 = 3,       //1             // ManaMin%, ManaMax%, RepeatMin, RepeatMax
     SMART_EVENT_AGGRO                    = 4,       //1             // NONE
     SMART_EVENT_KILL                     = 5,       //1             // CooldownMin0, CooldownMax1, playerOnly2, else creature entry3
@@ -415,7 +414,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_SHEATH                         = 40,     // Sheath (0-unarmed, 1-melee, 2-ranged)
     SMART_ACTION_FORCE_DESPAWN                      = 41,     // timer
     SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL         = 42,     // MinHpValue(+pct, -flat)
-    SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to unmount)
+    SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
     SMART_ACTION_SET_INGAME_PHASE_MASK              = 44,     // mask
 
     SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature TODO)
@@ -443,7 +442,7 @@ enum SMART_ACTION
 
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
-    SMART_ACTION_MOVE_TO_POS                        = 69,     // xyz
+    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, xyz
     SMART_ACTION_RESPAWN_TARGET                     = 70,     //
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
@@ -460,7 +459,7 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_NPC_FLAG                    = 83,     // Flags
     SMART_ACTION_SIMPLE_TALK                        = 84,     // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
     SMART_ACTION_INVOKER_CAST                       = 85,     // spellID, castFlags,   if avaliable, last used invoker will cast spellId with castFlags on targets
-    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),  CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
+    SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
     SMART_ACTION_RANDOM_MOVE                        = 89,     // maxDist
@@ -473,12 +472,10 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
-    SMART_ACTION_SET_RANDOM_HEALTH                  = 99,     // MinPctHealth, MaxPctHealth
-    SMART_ACTION_GO_SET_LOOT_STATE                  = 100,     // state
-    SMART_ACTION_SEND_TARGET_TO_TARGET              = 101,
-    SMART_ACTION_SET_MANA                           = 102,     // Mana_Ammount
+    SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
+    SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,    // id
 
-    SMART_ACTION_END                                = 103,
+    SMART_ACTION_END                                = 101,
 };
 
 struct SmartAction
@@ -874,6 +871,11 @@ struct SmartAction
         {
             uint32 goRespawnTime;
         } RespawnTarget;
+
+        struct
+        {
+            uint8 pointId;
+        } MoveToPos;
 
         struct
         {
@@ -1382,10 +1384,10 @@ class SmartAIMgr
             if (t > 0 && v1 >= 0 && v2 >= 0 && v3 >= 0)
             {
                 Condition cond;
-                cond.ConditionType = ConditionTypes(t);
-                cond.ConditionValue1 = uint32(v1);
-                cond.ConditionValue2 = uint32(v2);
-                cond.ConditionValue3 = uint32(v3);
+                cond.mConditionType = ConditionType(t);
+                cond.mConditionValue1 = uint32(v1);
+                cond.mConditionValue2 = uint32(v2);
+                cond.mConditionValue3 = uint32(v3);
                 if (!sConditionMgr->isConditionTypeValid(&cond))
                     error = true;
             }

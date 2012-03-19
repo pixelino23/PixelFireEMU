@@ -27,6 +27,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
+#include "CreatureTextMgr.h"
 
 enum Texts
 {

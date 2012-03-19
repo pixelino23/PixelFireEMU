@@ -40,12 +40,6 @@ class GameObjectAI
 
         virtual void Reset() {};
 
-        // Pass parameters between AI
-        virtual void DoAction(const int32 /*param = 0 */) {}
-        virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
-        virtual void SetGUID(const uint64 &/*guid*/, int32 /*id = 0 */) {}
-        virtual uint64 GetGUID(int32 /*id = 0 */) { return 0; }
-
         static int Permissible(const GameObject* go);
 
         virtual bool GossipHello(Player* /*player*/) {return false;}
@@ -57,7 +51,7 @@ class GameObjectAI
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
-        virtual void OnStateChanged(uint32 state, Unit* unit) { }
+        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
 };
 
 class NullGameObjectAI : public GameObjectAI

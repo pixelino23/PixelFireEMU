@@ -152,7 +152,7 @@ _creatureInfo(NULL), _creatureData(NULL), _formation(NULL), _path_id(0)
     _valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        _spells[i] = 0;
+        m_spells[i] = 0;
 
     _CreatureSpellCooldowns.clear();
     _CreatureCategoryCooldowns.clear();
@@ -343,7 +343,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
         _defaultMovementType = IDLE_MOTION_TYPE;
 
     for (uint8 i=0; i < CREATURE_MAX_SPELLS; ++i)
-        _spells[i] = GetCreatureTemplate()->spells[i];
+        m_spells[i] = GetCreatureTemplate()->spells[i];
 
     return true;
 }
@@ -1653,12 +1653,12 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        if (!_spells[i])
+        if (!m_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
         if (!spellInfo)
         {
-            sLog->outError("WORLD: unknown spell id %i", _spells[i]);
+            sLog->outError("WORLD: unknown spell id %i", m_spells[i]);
             continue;
         }
 
@@ -1701,12 +1701,12 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        if (!_spells[i])
+        if (!m_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
         if (!spellInfo)
         {
-            sLog->outError("WORLD: unknown spell id %i", _spells[i]);
+            sLog->outError("WORLD: unknown spell id %i", m_spells[i]);
             continue;
         }
 
@@ -2170,7 +2170,7 @@ bool Creature::HasSpell(uint32 spellID) const
 {
     uint8 i;
     for (i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        if (spellID == _spells[i])
+        if (spellID == m_spells[i])
             break;
     return i < CREATURE_MAX_SPELLS;                         //broke before end of iteration of known spells
 }

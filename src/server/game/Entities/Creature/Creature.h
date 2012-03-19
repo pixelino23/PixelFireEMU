@@ -469,7 +469,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool canWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER; }
-        //bool canFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
+        bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { _reactState = st; }
         ReactStates GetReactState() { return _reactState; }
@@ -607,7 +607,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         SpellInfo const* reachWithSpellAttack(Unit* victim);
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
-        uint32 _spells[CREATURE_MAX_SPELLS];
+        uint32 m_spells[CREATURE_MAX_SPELLS];
         CreatureSpellCooldowns _CreatureSpellCooldowns;
         CreatureSpellCooldowns _CreatureCategoryCooldowns;
 

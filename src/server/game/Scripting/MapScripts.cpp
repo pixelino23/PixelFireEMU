@@ -376,22 +376,22 @@ void Map::ScriptsProcess()
                 }
                 if (step.script->Talk.Flags & SF_TALK_USE_PLAYER)
                 {
-                    if (Player* pSource = _GetScriptPlayerSourceOrTarget(source, target, step.script))
+                    if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
-                        LocaleConstant loc_idx = pSource->GetSession()->GetSessionDbLocaleIndex();
+                        LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
                         std::string text(sObjectMgr->GetSkyFireString(step.script->Talk.TextID, loc_idx));
 
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
-                                pSource->Say(text, LANG_UNIVERSAL);
+                                player->Say(text, LANG_UNIVERSAL);
                                 break;
                             case CHAT_TYPE_YELL:
-                                pSource->Yell(text, LANG_UNIVERSAL);
+                                player->Yell(text, LANG_UNIVERSAL);
                                 break;
                             case CHAT_TYPE_TEXT_EMOTE:
                             case CHAT_TYPE_BOSS_EMOTE:
-                                pSource->TextEmote(text);
+                                player->TextEmote(text);
                                 break;
                             case CHAT_TYPE_WHISPER:
                             case CHAT_MSG_RAID_BOSS_WHISPER:
@@ -400,7 +400,7 @@ void Map::ScriptsProcess()
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     sLog->outError("%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    pSource->Whisper(text, LANG_UNIVERSAL, targetGUID);
+                                    player->Whisper(text, LANG_UNIVERSAL, targetGUID);
                                 break;
                             }
                             default:
@@ -525,8 +525,8 @@ void Map::ScriptsProcess()
                 else
                 {
                     // Source or target must be Player.
-                    if (Player* pSource = _GetScriptPlayerSourceOrTarget(source, target, step.script))
-                        pSource->TeleportTo(step.script->TeleportTo.MapID, step.script->TeleportTo.DestX, step.script->TeleportTo.DestY, step.script->TeleportTo.DestZ, step.script->TeleportTo.Orientation);
+                    if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
+                        player->TeleportTo(step.script->TeleportTo.MapID, step.script->TeleportTo.DestX, step.script->TeleportTo.DestY, step.script->TeleportTo.DestZ, step.script->TeleportTo.Orientation);
                 }
                 break;
 
@@ -545,8 +545,8 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* plrTarget = target->ToPlayer();
-                if (plrTarget)
+                Player* player = target->ToPlayer();
+                if (player)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -558,8 +558,8 @@ void Map::ScriptsProcess()
                 }
                 else
                 {
-                    plrTarget = source->ToPlayer();
-                    if (plrTarget)
+                    player = source->ToPlayer();
+                    if (player)
                     {
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
@@ -580,22 +580,22 @@ void Map::ScriptsProcess()
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId() != TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(plrTarget, float(step.script->QuestExplored.Distance))))
-                    plrTarget->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
+                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(player, float(step.script->QuestExplored.Distance))))
+                    player->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
                 else
-                    plrTarget->FailQuest(step.script->QuestExplored.QuestID);
+                    player->FailQuest(step.script->QuestExplored.QuestID);
 
                 break;
             }
 
             case SCRIPT_COMMAND_KILL_CREDIT:
                 // Source or target must be Player.
-                if (Player* pSource = _GetScriptPlayerSourceOrTarget(source, target, step.script))
+                if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                 {
                     if (step.script->KillCredit.Flags & SF_KILLCREDIT_REWARD_GROUP)
-                        pSource->RewardPlayerAndGroupAtEvent(step.script->KillCredit.CreatureEntry, pSource);
+                        player->RewardPlayerAndGroupAtEvent(step.script->KillCredit.CreatureEntry, player);
                     else
-                        pSource->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, 0);
+                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, 0);
                 }
                 break;
 
@@ -666,7 +666,7 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_ACTIVATE_OBJECT:
                 // Source must be Unit.
-                if (Unit* pSource = _GetScriptUnit(source, true, step.script))
+                if (Unit* unit = _GetScriptUnit(source, true, step.script))
                 {
                     // Target must be GameObject.
                     if (!target)
@@ -683,7 +683,7 @@ void Map::ScriptsProcess()
                     }
 
                     if (GameObject* pGO = target->ToGameObject())
-                        pGO->Use(pSource);
+                        pGO->Use(unit);
                 }
                 break;
 
@@ -691,8 +691,8 @@ void Map::ScriptsProcess()
             {
                 // Source (datalong2 != 0) or target (datalong2 == 0) must be Unit.
                 bool bReverse = step.script->RemoveAura.Flags & SF_REMOVEAURA_REVERSE;
-                if (Unit* pTarget = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
-                    pTarget->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
+                if (Unit* unit = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
+                    unit->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
                 break;
             }
 
@@ -710,26 +710,26 @@ void Map::ScriptsProcess()
                 // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s
                 switch (step.script->CastSpell.Flags)
                 {
-                case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
-                    uSource = dynamic_cast<Unit*>(source);
-                    uTarget = dynamic_cast<Unit*>(target);
-                    break;
-                case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
-                    uSource = dynamic_cast<Unit*>(source);
-                    uTarget = uSource;
-                    break;
-                case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
-                    uSource = dynamic_cast<Unit*>(target);
-                    uTarget = uSource;
-                    break;
-                case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
-                    uSource = dynamic_cast<Unit*>(target);
-                    uTarget = dynamic_cast<Unit*>(source);
-                    break;
-                case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
-                    uSource = dynamic_cast<Unit*>(source);
-                    uTarget = GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius);
-                    break;
+                    case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
+                        uSource = source ? source->ToUnit() : NULL;
+                        uTarget = target ? target->ToUnit() : NULL;
+                        break;
+                    case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
+                        uSource = source ? source->ToUnit() : NULL;
+                        uTarget = uSource;
+                        break;
+                    case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
+                        uSource = target ? target->ToUnit() : NULL;
+                        uTarget = uSource;
+                        break;
+                    case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
+                        uSource = target ? target->ToUnit() : NULL;
+                        uTarget = source ? source->ToUnit() : NULL;
+                        break;
+                    case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
+                        uSource = source ? source->ToUnit() : NULL;
+                        uTarget = uSource ? GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
+                        break;
                 }
 
                 if (!uSource || !uSource->isType(TYPEMASK_UNIT))
@@ -753,23 +753,23 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_PLAY_SOUND:
                 // Source must be WorldObject.
-                if (WorldObject* pSource = _GetScriptWorldObject(source, true, step.script))
+                if (WorldObject* object = _GetScriptWorldObject(source, true, step.script))
                 {
                     // PlaySound.Flags bitmask: 0/1=anyone/target
-                    Player* pTarget = NULL;
+                    Player* player = NULL;
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_TARGET_PLAYER)
                     {
                         // Target must be Player.
-                        pTarget = _GetScriptPlayer(target, false, step.script);
-                        if (!pTarget)
+                        player = _GetScriptPlayer(target, false, step.script);
+                        if (!target)
                             break;
                     }
 
                     // PlaySound.Flags bitmask: 0/2=without/with distance dependent
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_DISTANCE_SOUND)
-                        pSource->PlayDistanceSound(step.script->PlaySound.SoundID, pTarget);
+                        object->PlayDistanceSound(step.script->PlaySound.SoundID, player);
                     else
-                        pSource->PlayDirectSound(step.script->PlaySound.SoundID, pTarget);
+                        object->PlayDirectSound(step.script->PlaySound.SoundID, player);
                 }
                 break;
 
@@ -797,12 +797,12 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_LOAD_PATH:
                 // Source must be Unit.
-                if (Unit* pSource = _GetScriptUnit(source, true, step.script))
+                if (Unit* unit = _GetScriptUnit(source, true, step.script))
                 {
                     if (!sWaypointMgr->GetPath(step.script->LoadPath.PathID))
                         sLog->outError("%s source object has an invalid path (%u), skipping.", step.script->GetDebugInfo().c_str(), step.script->LoadPath.PathID);
                     else
-                        pSource->GetMotionMaster()->MovePath(step.script->LoadPath.PathID, step.script->LoadPath.IsRepeatable);
+                        unit->GetMotionMaster()->MovePath(step.script->LoadPath.PathID, step.script->LoadPath.IsRepeatable);
                 }
                 break;
 
@@ -877,21 +877,21 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_ORIENTATION:
                 // Source must be Unit.
-                if (Unit* pSource = _GetScriptUnit(source, true, step.script))
+                if (Unit* sourceUnit = _GetScriptUnit(source, true, step.script))
                 {
-                    if (step.script->Orientation.Flags& SF_ORIENTATION_FACE_TARGET)
+                    if (step.script->Orientation.Flags & SF_ORIENTATION_FACE_TARGET)
                     {
                         // Target must be Unit.
-                        Unit* pTarget = _GetScriptUnit(target, false, step.script);
-                        if (!pTarget)
+                        Unit* targetUnit = _GetScriptUnit(target, false, step.script);
+                        if (!targetUnit)
                             break;
 
-                        pSource->SetInFront(pTarget);
+                        sourceUnit->SetInFront(targetUnit);
                     }
                     else
-                        pSource->SetOrientation(step.script->Orientation.Orientation);
+                        sourceUnit->SetOrientation(step.script->Orientation.Orientation);
 
-                    pSource->SendMovementFlagUpdate();
+                    sourceUnit->SendMovementFlagUpdate();
                 }
                 break;
 
@@ -909,14 +909,14 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_CLOSE_GOSSIP:
                 // Source must be Player.
-                if (Player* pSource = _GetScriptPlayer(source, true, step.script))
-                    pSource->PlayerTalkClass->SendCloseGossip();
+                if (Player* player = _GetScriptPlayer(source, true, step.script))
+                    player->PlayerTalkClass->SendCloseGossip();
                 break;
 
             case SCRIPT_COMMAND_PLAYMOVIE:
                 // Source must be Player.
-                if (Player* pSource = _GetScriptPlayer(source, true, step.script))
-                    pSource->SendMovieStart(step.script->PlayMovie.MovieID);
+                if (Player* player = _GetScriptPlayer(source, true, step.script))
+                    player->SendMovieStart(step.script->PlayMovie.MovieID);
                 break;
 
             default:

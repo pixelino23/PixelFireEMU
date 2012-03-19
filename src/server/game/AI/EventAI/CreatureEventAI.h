@@ -24,7 +24,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ScriptSystem.h"
 
 class Player;
 class WorldObject;
@@ -182,6 +181,14 @@ enum SpawnedEventMode
     SPAWNED_EVENT_ZONE  = 2
 };
 
+// String text additional data, used in (CreatureEventAI)
+struct StringTextData
+{
+    uint32 SoundId;
+    uint8  Type;
+    uint32 Language;
+    uint32 Emote;
+};
 // Text Maps
 typedef UNORDERED_MAP<int32, StringTextData> CreatureEventAI_TextMap;
 
@@ -571,7 +578,7 @@ typedef UNORDERED_MAP<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map
 
 struct CreatureEventAIHolder
 {
-    CreatureEventAIHolder(CreatureEventAI_Event const& p) : Event(p), Time(0), Enabled(true) {}
+    CreatureEventAIHolder(CreatureEventAI_Event const& p) : Event(p), Time(0), Enabled(true){}
 
     CreatureEventAI_Event Event;
     uint32 Time;
@@ -583,57 +590,58 @@ struct CreatureEventAIHolder
 
 class CreatureEventAI : public CreatureAI
 {
-    public:
-        explicit CreatureEventAI(Creature* c);
-        ~CreatureEventAI()
-        {
-            m_CreatureEventAIList.clear();
-        }
-        void JustRespawned();
-        void Reset();
-        void JustReachedHome();
-        void EnterCombat(Unit* enemy);
-        void EnterEvadeMode();
-        void JustDied(Unit* /*killer*/);
-        void KilledUnit(Unit* victim);
-        void JustSummoned(Creature* unit);
-        void AttackStart(Unit* who);
-        void MoveInLineOfSight(Unit* who);
-        void SpellHit(Unit* unit, const SpellInfo* spell);
-        void DamageTaken(Unit* done_by, uint32& damage);
-        void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
-        void UpdateAI(const uint32 diff);
-        void ReceiveEmote(Player* player, uint32 textEmote);
-        static int Permissible(const Creature*);
 
-        bool ProcessEvent(CreatureEventAIHolder& holder, Unit* actionInvoker = NULL);
-        void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 eventId, Unit* actionInvoker);
-        inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
-        inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
-        inline Unit* GetTargetByType(uint32 target, Unit* actionInvoker);
+public:
+    explicit CreatureEventAI(Creature* c);
+    ~CreatureEventAI()
+    {
+        m_CreatureEventAIList.clear();
+    }
+    void JustRespawned();
+    void Reset();
+    void JustReachedHome();
+    void EnterCombat(Unit* enemy);
+    void EnterEvadeMode();
+    void JustDied(Unit* /*killer*/);
+    void KilledUnit(Unit* victim);
+    void JustSummoned(Creature* unit);
+    void AttackStart(Unit* who);
+    void MoveInLineOfSight(Unit* who);
+    void SpellHit(Unit* unit, const SpellInfo* spell);
+    void DamageTaken(Unit* done_by, uint32& damage);
+    void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+    void UpdateAI(const uint32 diff);
+    void ReceiveEmote(Player* player, uint32 textEmote);
+    static int Permissible(const Creature*);
 
-        void DoScriptText(int32 textEntry, WorldObject* source, Unit* target);
-        bool CanCast(Unit* target, SpellInfo const* spell, bool triggered);
+    bool ProcessEvent(CreatureEventAIHolder& holder, Unit* actionInvoker = NULL);
+    void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 eventId, Unit* actionInvoker);
+    inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
+    inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
+    inline Unit* GetTargetByType(uint32 target, Unit* actionInvoker);
 
-        bool SpawnedEventConditionsCheck(CreatureEventAI_Event const& event);
+    void DoScriptText(int32 textEntry, WorldObject* source, Unit* target);
+    bool CanCast(Unit* target, SpellInfo const* spell, bool triggered);
 
-        Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff);
-        void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
-        void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
+    bool SpawnedEventConditionsCheck(CreatureEventAI_Event const& event);
 
-    protected:
-        uint32 m_EventUpdateTime;                           // Time between event updates
-        uint32 m_EventDiff;                                 // Time between the last event call
-        bool m_bEmptyList;
+    Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff);
+    void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
+    void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
 
-        typedef std::vector<CreatureEventAIHolder> CreatureEventAIList;
-        CreatureEventAIList m_CreatureEventAIList;          // Holder for events (stores enabled, time, and eventid)
-        // Variables used by Events themselves
-        uint8 m_Phase;                                        // Current phase, max 32 phases
-        bool m_CombatMovementEnabled;                         // If we allow targeted movment gen (movement twoards top threat)
-        bool m_MeleeEnabled;                                  // If we allow melee auto attack
-        float m_AttackDistance;                               // Distance to attack from
-        float m_AttackAngle;                                  // Angle of attack
-        uint32 m_InvinceabilityHpLevel;                       // Minimal health level allowed at damage apply
+protected:
+    uint32 m_EventUpdateTime;                           // Time between event updates
+    uint32 m_EventDiff;                                 // Time between the last event call
+    bool m_bEmptyList;
+
+    typedef std::vector<CreatureEventAIHolder> CreatureEventAIList;
+    CreatureEventAIList m_CreatureEventAIList;          // Holder for events (stores enabled, time, and eventid)
+    // Variables used by Events themselves
+    uint8 m_Phase;                                        // Current phase, max 32 phases
+    bool m_CombatMovementEnabled;                         // If we allow targeted movment gen (movement twoards top threat)
+    bool m_MeleeEnabled;                                  // If we allow melee auto attack
+    float m_AttackDistance;                               // Distance to attack from
+    float m_AttackAngle;                                  // Angle of attack
+    uint32 m_InvinceabilityHpLevel;                       // Minimal health level allowed at damage apply
 };
 #endif

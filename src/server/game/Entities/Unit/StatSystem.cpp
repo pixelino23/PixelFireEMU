@@ -1154,11 +1154,11 @@ bool Guardian::UpdateStats(Stats stat)
                         break;
                 }
 
-                PetSpellMap::const_iterator itr = (ToPet()->_spells.find(62758)); // Wild Hunt rank 1
-                if (itr == ToPet()->_spells.end())
-                    itr = ToPet()->_spells.find(62762);                            // Wild Hunt rank 2
+                PetSpellMap::const_iterator itr = (ToPet()->m_spells.find(62758)); // Wild Hunt rank 1
+                if (itr == ToPet()->m_spells.end())
+                    itr = ToPet()->m_spells.find(62762);                            // Wild Hunt rank 2
 
-                if (itr != ToPet()->_spells.end())                                 // If pet has Wild Hunt
+                if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     AddPctN(mod, spellInfo->Effects[EFFECT_0].CalcValue());
@@ -1334,11 +1334,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             float mod = 1.0f;                                                 //Hunter contribution modifier
             if (isPet())
             {
-                PetSpellMap::const_iterator itr = ToPet()->_spells.find(62758);    //Wild Hunt rank 1
-                if (itr == ToPet()->_spells.end())
-                    itr = ToPet()->_spells.find(62762);                            //Wild Hunt rank 2
+                PetSpellMap::const_iterator itr = ToPet()->m_spells.find(62758);    //Wild Hunt rank 1
+                if (itr == ToPet()->m_spells.end())
+                    itr = ToPet()->m_spells.find(62762);                            //Wild Hunt rank 2
 
-                if (itr != ToPet()->_spells.end())                                 // If pet has Wild Hunt
+                if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* sProto = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePctN(1.0f, sProto->Effects[1].CalcValue());

@@ -32,8 +32,7 @@ namespace FactorySelector
     CreatureAI* selectAI(Creature* creature)
     {
         const CreatureAICreator* ai_factory = NULL;
-        CreatureAIRegistry* reg = CreatureAIRepository::instance();
-        CreatureAIRegistry& ai_registry(*reg);
+        CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
 
         if (creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
@@ -65,7 +64,7 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
             else if (creature->isTrigger())
             {
-                if (creature->_spells[0])
+                if (creature->m_spells[0])
                     ai_factory = ai_registry.GetRegistryItem("TriggerAI");
                 else
                     ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
@@ -105,7 +104,7 @@ namespace FactorySelector
     {
         MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
         ASSERT(creature->GetCreatureTemplate() != NULL);
-        MovementGeneratorCreator const* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
+        const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
         /* if (mv_factory == NULL)
         {
@@ -127,6 +126,7 @@ namespace FactorySelector
         }*/
 
         return (mv_factory == NULL ? NULL : mv_factory->Create(creature));
+
     }
 
     GameObjectAI* SelectGameObjectAI(GameObject* go)
@@ -145,3 +145,4 @@ namespace FactorySelector
         return (ai_factory == NULL ? new NullGameObjectAI(go) : ai_factory->Create(go));
     }
 }
+

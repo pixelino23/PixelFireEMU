@@ -1128,7 +1128,7 @@ void Pet::_LoadSpells()
 
 void Pet::_SaveSpells(SQLTransaction& trans)
 {
-    for (PetSpellMap::iterator itr = _spells.begin(), next = _spells.begin(); itr != _spells.end(); itr = next)
+    for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
         ++next;
 
@@ -1140,7 +1140,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
         {
             case PETSPELL_REMOVED:
                 trans->PAppend("DELETE FROM pet_spell WHERE guid = '%u' and spell = '%u'", m_charmInfo->GetPetNumber(), itr->first);
-                _spells.erase(itr);
+                m_spells.erase(itr);
                 continue;
             case PETSPELL_CHANGED:
                 trans->PAppend("DELETE FROM pet_spell WHERE guid = '%u' and spell = '%u'", m_charmInfo->GetPetNumber(), itr->first);
@@ -1294,12 +1294,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         return false;
     }
 
-    PetSpellMap::iterator itr = _spells.find(spellId);
-    if (itr != _spells.end())
+    PetSpellMap::iterator itr = m_spells.find(spellId);
+    if (itr != m_spells.end())
     {
         if (itr->second.state == PETSPELL_REMOVED)
         {
-            _spells.erase(itr);
+            m_spells.erase(itr);
             state = PETSPELL_CHANGED;
         }
         else if (state == PETSPELL_UNCHANGED && itr->second.state != PETSPELL_UNCHANGED)
@@ -1353,7 +1353,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     }
     else if (spellInfo->IsRanked())
     {
-        for (PetSpellMap::const_iterator itr2 = _spells.begin(); itr2 != _spells.end(); ++itr2)
+        for (PetSpellMap::const_iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
         {
             if (itr2->second.state == PETSPELL_REMOVED) continue;
 
@@ -1382,7 +1382,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         }
     }
 
-    _spells[spellId] = newspell;
+    m_spells[spellId] = newspell;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
         CastSpell(this, spellId, true);
@@ -1476,15 +1476,15 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
 bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 {
-    PetSpellMap::iterator itr = _spells.find(spell_id);
-    if (itr == _spells.end())
+    PetSpellMap::iterator itr = m_spells.find(spell_id);
+    if (itr == m_spells.end())
         return false;
 
     if (itr->second.state == PETSPELL_REMOVED)
         return false;
 
     if (itr->second.state == PETSPELL_NEW)
-        _spells.erase(itr);
+        m_spells.erase(itr);
     else
         itr->second.state = PETSPELL_REMOVED;
 
@@ -1544,7 +1544,7 @@ void Pet::CleanupActionBar()
 void Pet::InitPetCreateSpells()
 {
     m_charmInfo->InitPetActionBar();
-    _spells.clear();
+    m_spells.clear();
 
     LearnPetPassives();
     InitLevelupSpellsForLevel();
@@ -1599,7 +1599,7 @@ bool Pet::resetTalents()
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
         {
-            for (PetSpellMap::const_iterator itr = _spells.begin(); itr != _spells.end();)
+            for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
             {
                 if (itr->second.state == PETSPELL_REMOVED)
                 {
@@ -1613,7 +1613,7 @@ bool Pet::resetTalents()
                 if (itrFirstId == talentInfo->RankID[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->RankID[j], itrFirstId))
                 {
                     unlearnSpell(itr->first, false);
-                    itr = _spells.begin();
+                    itr = m_spells.begin();
                     continue;
                 }
                 else
@@ -1740,8 +1740,8 @@ void Pet::ToggleAutocast(SpellInfo const* spellInfo, bool apply)
 
     uint32 spellid = spellInfo->Id;
 
-    PetSpellMap::iterator itr = _spells.find(spellid);
-    if (itr == _spells.end())
+    PetSpellMap::iterator itr = m_spells.find(spellid);
+    if (itr == m_spells.end())
         return;
 
     uint32 i;
@@ -1826,8 +1826,8 @@ bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint3
 
 bool Pet::HasSpell(uint32 spell) const
 {
-    PetSpellMap::const_iterator itr = _spells.find(spell);
-    return itr != _spells.end() && itr->second.state != PETSPELL_REMOVED;
+    PetSpellMap::const_iterator itr = m_spells.find(spell);
+    return itr != m_spells.end() && itr->second.state != PETSPELL_REMOVED;
 }
 
 // Get all passive spells in our skill line

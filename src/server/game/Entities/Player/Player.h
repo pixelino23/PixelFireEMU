@@ -1741,8 +1741,8 @@ class Player : public Unit, public GridObject<Player>
         void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS, profs); }
         void InitPrimaryProfessions();
 
-        PlayerSpellMap const& GetSpellMap() const { return _spells; }
-        PlayerSpellMap      & GetSpellMap()       { return _spells; }
+        PlayerSpellMap const& GetSpellMap() const { return m_spells; }
+        PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         SpellCooldowns const& GetSpellCooldownMap() const { return _spellCooldowns; }
 
@@ -2713,7 +2713,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 _ArenaTeamIdInvited;
 
         PlayerMails _mail;
-        PlayerSpellMap _spells;
+        PlayerSpellMap m_spells;
         PlayerTalentMap *_talents[MAX_TALENT_SPECS];
         uint32 _lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 

@@ -189,7 +189,7 @@ class Pet : public Guardian
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
 
-        PetSpellMap     _spells;
+        PetSpellMap     m_spells;
         AutoSpellList   m_autospells;
 
         void InitPetCreateSpells();
