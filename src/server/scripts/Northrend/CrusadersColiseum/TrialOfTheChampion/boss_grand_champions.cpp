@@ -174,9 +174,9 @@ public:
             uiBuffTimer = urand(30000, 60000);
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/)
+        void SetData(uint32 Type, uint32 /*uiData*/)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case 1:
                     AddWaypoint(0, 747.36f, 634.07f, 411.572f);
@@ -199,7 +199,7 @@ public:
                     break;
             }
 
-            if (uiType <= 3)
+            if (Type <= 3)
                 Start(false, true, 0, NULL);
         }
 

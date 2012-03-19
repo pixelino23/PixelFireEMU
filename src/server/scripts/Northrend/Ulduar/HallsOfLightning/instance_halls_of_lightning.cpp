@@ -133,9 +133,9 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 Type, uint32 uiData)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case TYPE_BJARNGRIM:
                     if (uiData == DONE)
@@ -173,9 +173,9 @@ public:
                 SaveToDB();
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 Type)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case TYPE_BJARNGRIM:
                     return m_auiEncounter[0];

@@ -182,7 +182,7 @@ enum SpawnedEventMode
 };
 
 // String text additional data, used in (CreatureEventAI)
-struct StringTextdata
+struct StringTextData
 {
     uint32 SoundId;
     uint8  Type;
@@ -190,7 +190,7 @@ struct StringTextdata
     uint32 Emote;
 };
 // Text Maps
-typedef UNORDERED_MAP<int32, StringTextdata> CreatureEventAI_TextMap;
+typedef UNORDERED_MAP<int32, StringTextData> CreatureEventAI_TextMap;
 
 struct CreatureEventAI_Action
 {

@@ -551,13 +551,13 @@ public:
         npc_teleportation_portalAI(Creature* c) : ScriptedAI(c), listOfMobs(me)
         {
             instance = c->GetInstanceScript();
-            uiTypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
+            TypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
 
         uint32 uiSpawnTimer;
         bool bPortalGuardianOrKeeperOrEliteSpawn;
-        uint8 uiTypeOfMobsPortal;
+        uint8 TypeOfMobsPortal;
 
         SummonList listOfMobs;
 
@@ -588,7 +588,7 @@ public:
             if ((uiWaveCount == 6) || (uiWaveCount == 12)) //Don't spawn mobs on boss encounters
                 return;
 
-            switch (uiTypeOfMobsPortal)
+            switch (TypeOfMobsPortal)
             {
                 // spawn elite mobs and then set portals visibility to make it look like it dissapeard
                 case 0:

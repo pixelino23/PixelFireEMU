@@ -197,9 +197,9 @@ struct boss_twin_baseAI : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 Type, uint32 uiId)
     {
-        if (uiType != POINT_MOTION_TYPE) return;
+        if (Type != POINT_MOTION_TYPE) return;
 
         switch (uiId)
         {
@@ -581,9 +581,9 @@ struct mob_unleashed_ballAI : public ScriptedAI
         m_uiRangeCheckTimer = IN_MILLISECONDS;
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 Type, uint32 uiId)
     {
-        if (uiType != POINT_MOTION_TYPE) return;
+        if (Type != POINT_MOTION_TYPE) return;
 
         switch (uiId)
         {

@@ -178,31 +178,31 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u", iTextEntry, pData->uiSoundId, pData->uiType, pData->uiLanguage, pData->uiEmote);
+    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u", iTextEntry, pData->SoundId, pData->Type, pData->Language, pData->Emote);
 
-    if (pData->uiSoundId)
+    if (pData->SoundId)
     {
-        if (sSoundEntriesStore.LookupEntry(pData->uiSoundId))
-            pSource->SendPlaySound(pData->uiSoundId, false);
+        if (sSoundEntriesStore.LookupEntry(pData->SoundId))
+            pSource->SendPlaySound(pData->SoundId, false);
         else
-            sLog->outError("TSCR: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
+            sLog->outError("TSCR: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->SoundId);
     }
 
-    if (pData->uiEmote)
+    if (pData->Emote)
     {
         if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
-            ((Unit*)pSource)->HandleEmoteCommand(pData->uiEmote);
+            ((Unit*)pSource)->HandleEmoteCommand(pData->Emote);
         else
             sLog->outError("TSCR: DoScriptText entry %i tried to process emote for invalid TypeId (%u).", iTextEntry, pSource->GetTypeId());
     }
 
-    switch (pData->uiType)
+    switch (pData->Type)
     {
         case CHAT_TYPE_SAY:
-            pSource->MonsterSay(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterSay(iTextEntry, pData->Language, target ? target->GetGUID() : 0);
             break;
         case CHAT_TYPE_YELL:
-            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterYell(iTextEntry, pData->Language, target ? target->GetGUID() : 0);
             break;
         case CHAT_TYPE_TEXT_EMOTE:
             pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0);
@@ -229,7 +229,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
             break;
         }
         case CHAT_TYPE_ZONE_YELL:
-            pSource->MonsterYellToZone(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterYellToZone(iTextEntry, pData->Language, target ? target->GetGUID() : 0);
             break;
     }
 }
@@ -1299,6 +1299,26 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
+void ScriptMgr::OnActivateSpec(Player* player, uint8 spec)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnActivateSpec(player, spec);
+}
+
+void ScriptMgr::OnTalentBranchSpecChanged(Player* player, uint8 spec, uint32 newSpecID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTalentBranchSpecChanged(player, spec, newSpecID);
+}
+
+void ScriptMgr::OnAddSpell(Player* player, uint32 spell_id, bool learning)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnAddSpell(player, spell_id, learning);
+}
+
+void ScriptMgr::OnUpdateRating(Player* player, CombatRating cr, int32& amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateRating(player, cr, amount);
 }
 
 // Guild

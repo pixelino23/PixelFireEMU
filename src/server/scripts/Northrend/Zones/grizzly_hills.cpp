@@ -415,9 +415,9 @@ public:
             m_gender = 0;
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 Type, uint32 uiData)
         {
-            if (uiType == 1)
+            if (Type == 1)
                 m_gender = uiData;
         }
 

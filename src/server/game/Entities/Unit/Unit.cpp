@@ -12972,7 +12972,7 @@ Unit* Creature::SelectVictim()
     // search nearby enemy before enter evade mode
     if (HasReactState(REACT_AGGRESSIVE))
     {
-        target = SelectNearestTargetInAttackDistance(_CombatDistance ? _CombatDistance : ATTACK_DISTANCE);
+        target = SelectNearestTargetInAttackDistance(m_CombatDistance ? m_CombatDistance : ATTACK_DISTANCE);
 
         if (target && _IsTargetAcceptable(target))
             return target;

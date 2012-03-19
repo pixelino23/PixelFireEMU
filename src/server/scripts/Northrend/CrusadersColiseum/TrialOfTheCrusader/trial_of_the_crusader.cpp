@@ -257,9 +257,9 @@ class boss_lich_king_toc : public CreatureScript
                 me->SetWalk(true);
             }
 
-            void MovementInform(uint32 uiType, uint32 uiId)
+            void MovementInform(uint32 Type, uint32 uiId)
             {
-                if (uiType != POINT_MOTION_TYPE)
+                if (Type != POINT_MOTION_TYPE)
                     return;
                 switch (uiId)
                 {
@@ -382,9 +382,9 @@ class npc_fizzlebang_toc : public CreatureScript
                 me->GetMotionMaster()->MovePoint(1, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY()-60, ToCCommonLoc[10].GetPositionZ());
             }
 
-            void MovementInform(uint32 uiType, uint32 uiId)
+            void MovementInform(uint32 Type, uint32 uiId)
             {
-                if (uiType != POINT_MOTION_TYPE) return;
+                if (Type != POINT_MOTION_TYPE) return;
 
                 switch (uiId)
                 {

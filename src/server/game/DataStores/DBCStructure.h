@@ -2278,7 +2278,7 @@ struct WorldStateEntry
     char*     m_uiIcon2;                                    // 11
     char*     m_uiMessage3;                                 // 12
     uint32    m_flags3;                                     // 13       string flags
-    char*     m_uiType;                                     // 14       only CAPTUREPOINT type, or NULL
+    char*     m_Type;                                     // 14       only CAPTUREPOINT type, or NULL
     uint32    m_unk60;                                      // 15
     uint32    m_unk61;                                      // 16
     uint32    m_unk62;                                      // 17       only 0

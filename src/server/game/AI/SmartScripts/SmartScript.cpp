@@ -46,7 +46,7 @@ class TrinityStringTextBuilder
 
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
-            std::string text = sObjectMgr->GetTrinityString(_textId, locale);
+            std::string text = sObjectMgr->GetSkyFireString(_textId, locale);
             char const* localizedName = _source->GetNameForLocaleIdx(locale);
 
             *data << uint8(_msgType);

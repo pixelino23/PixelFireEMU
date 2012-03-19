@@ -58,9 +58,9 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 return Encounter[type];
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            void SetData(uint32 Type, uint32 uiData)
             {
-                Encounter[uiType] = uiData;
+                Encounter[Type] = uiData;
 
                 if (uiData == DONE)
                     SaveToDB();

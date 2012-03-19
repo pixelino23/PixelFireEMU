@@ -115,9 +115,9 @@ public:
                 uiPhase = uiPhaseStep;
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/)
+        void SetData(uint32 Type, uint32 /*uiData*/)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case DATA_START:
                     DoSummonGrandChampion(uiFirstBoss);
@@ -170,9 +170,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 Type, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             if (uiPointId == 1)

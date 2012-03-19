@@ -377,9 +377,9 @@ public:
             }
          }
 
-         void SpawnDwarf(uint32 uiType)
+         void SpawnDwarf(uint32 Type)
          {
-           switch (uiType)
+           switch (Type)
            {
                case 1:
                {

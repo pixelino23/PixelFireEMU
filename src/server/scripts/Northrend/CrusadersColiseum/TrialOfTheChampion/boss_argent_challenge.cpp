@@ -468,12 +468,12 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/)
+        void SetData(uint32 Type, uint32 /*uiData*/)
         {
             switch (me->GetEntry())
             {
                 case NPC_ARGENT_LIGHWIELDER:
-                    switch (uiType)
+                    switch (Type)
                     {
                         case 0:
                             AddWaypoint(0, 712.14f, 628.42f, 411.88f);
@@ -487,7 +487,7 @@ public:
                     }
                     break;
                 case NPC_ARGENT_MONK:
-                    switch (uiType)
+                    switch (Type)
                     {
                         case 0:
                             AddWaypoint(0, 713.12f, 632.97f, 411.90f);
@@ -501,7 +501,7 @@ public:
                     }
                     break;
                 case NPC_PRIESTESS:
-                    switch (uiType)
+                    switch (Type)
                     {
                         case 0:
                             AddWaypoint(0, 715.06f, 637.07f, 411.91f);
@@ -517,7 +517,7 @@ public:
             }
 
             Start(false, true, 0);
-            uiWaypoint = uiType;
+            uiWaypoint = Type;
         }
 
         void UpdateAI(const uint32 uiDiff)

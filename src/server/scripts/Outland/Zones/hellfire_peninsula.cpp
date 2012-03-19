@@ -486,9 +486,9 @@ public:
             uiHelboarGUID = 0;
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
+        void MovementInform(uint32 Type, uint32 uiId)
         {
-            if (uiType != POINT_MOTION_TYPE || uiId != 1)
+            if (Type != POINT_MOTION_TYPE || uiId != 1)
                 return;
 
             if (Creature* pHelboar = me->GetCreature(*me, uiHelboarGUID))

@@ -159,7 +159,7 @@ _creatureInfo(NULL), _creatureData(NULL), _formation(NULL), _path_id(0)
     DisableReputationGain = false;
 
     _SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
-    _CombatDistance = 0;//MELEE_RANGE;
+    m_CombatDistance = 0;//MELEE_RANGE;
 
     ResetLootMode(); // restore default loot mode
     TriggerJustRespawned = false;
@@ -1403,7 +1403,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;
 
-    if (!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + _CombatDistance))
+    if (!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
         // TODO: should switch to range attack
@@ -1419,7 +1419,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
                 if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
                     force = true;
 
-        if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + _CombatDistance)))
+        if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
             return false;
     }
 
@@ -1982,7 +1982,7 @@ bool Creature::canCreatureAttack(Unit const* victim, bool /*force*/) const
         return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + _CombatDistance;
+    float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
 
     if (Unit* unit = GetCharmerOrOwner())
         return victim->IsWithinDist(unit, dist);

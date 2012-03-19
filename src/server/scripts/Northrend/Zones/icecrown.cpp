@@ -195,9 +195,9 @@ public:
             uiShieldBreakerTimer = 10000;
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             me->setFaction(14);

@@ -1287,9 +1287,9 @@ public:
             me->RestoreFaction();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             if (me->isSummon())
@@ -1317,9 +1317,9 @@ public:
     {
         npc_general_arlosAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             me->AddUnitState(UNIT_STATE_STUNNED);
@@ -1376,9 +1376,9 @@ public:
             uiDeflectionTimer   = urand(20000, 25000);
             uiSoulBlastTimer    = urand (12000, 18000);
         }
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             if (me->isSummon())
@@ -1479,9 +1479,9 @@ public:
         uint32 Phase;
         uint32 uiPhaseTimer;
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             if (!bDone)
@@ -2063,9 +2063,9 @@ public:
                 bStarted = true;
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
             me->DisappearAndDie();
             GameObject* pTrap;
@@ -2373,11 +2373,11 @@ public:
     {
         npc_hidden_cultistAI(Creature* creature) : ScriptedAI(creature)
         {
-           uiEmoteState = creature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
+           EmoteState = creature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
            uiNpcFlags = creature->GetUInt32Value(UNIT_NPC_FLAGS);
         }
 
-        uint32 uiEmoteState;
+        uint32 EmoteState;
         uint32 uiNpcFlags;
 
         uint32 uiEventTimer;
@@ -2387,8 +2387,8 @@ public:
 
         void Reset()
         {
-            if (uiEmoteState)
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, uiEmoteState);
+            if (EmoteState)
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EmoteState);
 
             if (uiNpcFlags)
                 me->SetUInt32Value(UNIT_NPC_FLAGS, uiNpcFlags);

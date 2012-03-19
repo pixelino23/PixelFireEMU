@@ -190,9 +190,9 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 Type, uint32 uiData)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case 0:
                     SummonChampions((Team)uiData);

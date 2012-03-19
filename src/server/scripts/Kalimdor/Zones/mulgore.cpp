@@ -135,9 +135,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 Type, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !bEvent)
+            if (Type != POINT_MOTION_TYPE || !bEvent)
                 return;
 
             if (uiPointId == POINT_ID)

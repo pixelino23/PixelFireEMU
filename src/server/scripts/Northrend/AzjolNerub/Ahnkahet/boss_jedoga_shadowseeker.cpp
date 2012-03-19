@@ -436,9 +436,9 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 Type, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !instance)
+            if (Type != POINT_MOTION_TYPE || !instance)
                 return;
 
             switch (uiPointId)

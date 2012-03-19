@@ -112,9 +112,9 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 Type, uint32 uiData)
         {
-            if (uiType == DATA_GONG_WAVES)
+            if (Type == DATA_GONG_WAVES)
             {
                 uiGongWaves = uiData;
 
@@ -175,7 +175,7 @@ public:
                 }
             }
 
-            if (uiType == BOSS_TUTEN_KASH)
+            if (Type == BOSS_TUTEN_KASH)
             {
                 m_auiEncounter[0] = uiData;
 
@@ -184,9 +184,9 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 Type)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case DATA_GONG_WAVES:
                     return uiGongWaves;
@@ -195,9 +195,9 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        uint64 GetData64(uint32 Type)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case DATA_GONG: return uiGongGUID;
             }

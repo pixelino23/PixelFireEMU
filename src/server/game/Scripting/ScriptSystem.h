@@ -21,6 +21,7 @@
 #define SC_SYSTEM_H
 
 #include <ace/Singleton.h>
+#include <CreatureEventAIMgr.h>
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
@@ -59,14 +60,6 @@ struct ScriptPointMove
 };
 
 typedef std::vector<ScriptPointMove> ScriptPointVector;
-
-struct StringTextData
-{
-    uint32 uiSoundId;
-    uint8  uiType;
-    uint32 uiLanguage;
-    uint32 uiEmote;
-};
 
 class SystemMgr
 {

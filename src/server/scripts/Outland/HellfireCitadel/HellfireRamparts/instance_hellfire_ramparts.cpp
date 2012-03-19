@@ -64,11 +64,11 @@ class instance_ramparts : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            void SetData(uint32 Type, uint32 uiData)
             {
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Ramparts: SetData received for type %u with data %u", Type, uiData);
 
-                switch (uiType)
+                switch (Type)
                 {
                     case TYPE_VAZRUDEN:
                         if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)

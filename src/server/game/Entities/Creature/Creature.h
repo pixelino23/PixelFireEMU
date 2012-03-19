@@ -705,7 +705,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         static float _GetDamageMod(int32 Rank);
 
-        float _SightDistance, _CombatDistance;
+        float _SightDistance, m_CombatDistance;
 
         void SetGUIDTransport(uint32 guid) { guid_transport=guid; }
         uint32 GetGUIDTransport() { return guid_transport; }

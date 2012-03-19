@@ -163,9 +163,9 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 Type, uint32 uiData)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case DATA_MOVEMENT_DONE:
                     uiMovementDone = uiData;
@@ -263,9 +263,9 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 uiType, uint64 uiData)
+        void SetData64(uint32 Type, uint64 uiData)
         {
-            switch (uiType)
+            switch (Type)
             {
                 case DATA_GRAND_CHAMPION_1:
                     uiGrandChampion1GUID = uiData;

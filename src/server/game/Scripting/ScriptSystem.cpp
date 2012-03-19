@@ -27,7 +27,7 @@ ScriptPointVector const SystemMgr::_empty;
 void SystemMgr::LoadScriptTexts()
 {
     sLog->outString("TSCR: Loading Script Texts...");
-    LoadTrinityStrings("script_texts", TEXT_SOURCE_RANGE, 1+(TEXT_SOURCE_RANGE*2));
+    LoadSkyFireStrings("script_texts", TEXT_SOURCE_RANGE, 1+(TEXT_SOURCE_RANGE*2));
 
     sLog->outString("TSCR: Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
@@ -49,10 +49,10 @@ void SystemMgr::LoadScriptTexts()
         StringTextData temp;
 
         int32 iId           = pFields[0].GetInt32();
-        temp.uiSoundId     = pFields[1].GetUInt32();
-        temp.uiType        = pFields[2].GetUInt32();
-        temp.uiLanguage    = pFields[3].GetUInt32();
-        temp.uiEmote       = pFields[4].GetUInt32();
+        temp.SoundId     = pFields[1].GetUInt32();
+        temp.Type        = pFields[2].GetUInt32();
+        temp.Language    = pFields[3].GetUInt32();
+        temp.Emote       = pFields[4].GetUInt32();
 
         if (iId >= 0)
         {
@@ -66,17 +66,17 @@ void SystemMgr::LoadScriptTexts()
             continue;
         }
 
-        if (temp.uiSoundId)
+        if (temp.SoundId)
         {
-            if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
-                sLog->outErrorDb("TSCR: Entry %i in table `script_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
+            if (!sSoundEntriesStore.LookupEntry(temp.SoundId))
+                sLog->outErrorDb("TSCR: Entry %i in table `script_texts` has soundId %u but sound does not exist.", iId, temp.SoundId);
         }
 
-        if (!GetLanguageDescByID(temp.uiLanguage))
-            sLog->outErrorDb("TSCR: Entry %i in table `script_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
+        if (!GetLanguageDescByID(temp.Language))
+            sLog->outErrorDb("TSCR: Entry %i in table `script_texts` using Language %u but Language does not exist.", iId, temp.Language);
 
-        if (temp.uiType > CHAT_TYPE_ZONE_YELL)
-            sLog->outErrorDb("TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
+        if (temp.Type > CHAT_TYPE_ZONE_YELL)
+            sLog->outErrorDb("TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.", iId, temp.Type);
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
@@ -90,7 +90,7 @@ void SystemMgr::LoadScriptTexts()
 void SystemMgr::LoadScriptTextsCustom()
 {
     sLog->outString("TSCR: Loading Custom Texts...");
-    LoadTrinityStrings("custom_texts", TEXT_SOURCE_RANGE*2, 1+(TEXT_SOURCE_RANGE*3));
+    LoadSkyFireStrings("custom_texts", TEXT_SOURCE_RANGE*2, 1+(TEXT_SOURCE_RANGE*3));
 
     sLog->outString("TSCR: Loading Custom Texts additional data...");
 
@@ -111,10 +111,10 @@ void SystemMgr::LoadScriptTextsCustom()
         StringTextData temp;
 
         int32 iId              = pFields[0].GetInt32();
-        temp.uiSoundId        = pFields[1].GetUInt32();
-        temp.uiType           = pFields[2].GetUInt32();
-        temp.uiLanguage       = pFields[3].GetUInt32();
-        temp.uiEmote          = pFields[4].GetUInt32();
+        temp.SoundId        = pFields[1].GetUInt32();
+        temp.Type           = pFields[2].GetUInt32();
+        temp.Language       = pFields[3].GetUInt32();
+        temp.Emote          = pFields[4].GetUInt32();
 
         if (iId >= 0)
         {
@@ -128,17 +128,17 @@ void SystemMgr::LoadScriptTextsCustom()
             continue;
         }
 
-        if (temp.uiSoundId)
+        if (temp.SoundId)
         {
-            if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
-                sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
+            if (!sSoundEntriesStore.LookupEntry(temp.SoundId))
+                sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` has soundId %u but sound does not exist.", iId, temp.SoundId);
         }
 
-        if (!GetLanguageDescByID(temp.uiLanguage))
-            sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
+        if (!GetLanguageDescByID(temp.Language))
+            sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` using Language %u but Language does not exist.", iId, temp.Language);
 
-        if (temp.uiType > CHAT_TYPE_ZONE_YELL)
-            sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
+        if (temp.Type > CHAT_TYPE_ZONE_YELL)
+            sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.", iId, temp.Type);
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
