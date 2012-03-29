@@ -1,0 +1,1 @@
+ALTER TABLE `waypoint_data` ADD COLUMN `orientation` float NOT NULL DEFAULT '0' AFTER `position_z`;
