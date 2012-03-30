@@ -491,7 +491,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     fields = result->Fetch();
     uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
     uint8 signs = fields[1].GetUInt8();
-    uint32 type = fields[2].GetUInt32();
+    uint8 type = fields[2].GetUInt8();
 
     uint32 playerGuid = _player->GetGUIDLow();
     if (GUID_LOPART(ownerGuid) == playerGuid)
@@ -917,7 +917,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_GUID);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     trans->Append(stmt);
 
