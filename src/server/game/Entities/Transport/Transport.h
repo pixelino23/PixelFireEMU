@@ -85,6 +85,7 @@ class Transport : public GameObject
         uint32 ScriptId;
     public:
         WayPointMap m_WayPoints;
+        uint32 m_nextNodeTime;
 
     private:
         void TeleportTransport(uint32 newMapid, float x, float y, float z);

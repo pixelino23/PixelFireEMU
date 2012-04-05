@@ -20,7 +20,7 @@
 #define TRINITY_OBJECTREGISTRY_H
 
 #include "Define.h"
-#include "Dynamic/UnorderedMap.h"
+#include "UnorderedMap.h"
 #include <ace/Singleton.h>
 
 #include <string>

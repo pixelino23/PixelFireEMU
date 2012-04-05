@@ -410,17 +410,13 @@ void Transport::Update(uint32 p_diff)
     {
         if (!AIM_Initialize())
             sLog->outError("Could not initialize GameObjectAI for Transport");
-    }
-    else
+    } else
         AI()->UpdateAI(p_diff);
 
     if (m_WayPoints.size() <= 1)
         return;
 
-    if (!HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
-        return;
-
-    _timer = (_timer + p_diff) % m_period;
+    _timer = getMSTime() % m_period;
     while (((_timer - m_curr->first) % m_pathTime) > ((m_next->first - m_curr->first) % m_pathTime))
     {
         DoEventIfAny(*m_curr, true);
@@ -431,10 +427,10 @@ void Transport::Update(uint32 p_diff)
         DoEventIfAny(*m_curr, false);
 
         // first check help in case client-server transport coordinates de-synchronization
-        if (m_curr->second.mapid != GetMapId())
+        if (m_curr->second.mapid != GetMapId() || m_curr->second.teleport)
+        {
             TeleportTransport(m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
-        else if (m_curr->second.teleport)
-            TeleportTransport(m_next->second.mapid, m_next->second.x, m_next->second.y, m_next->second.z);
+        }
         else
         {
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z, GetAngle(m_next->second.x, m_next->second.y) + float(M_PI));
@@ -442,6 +438,8 @@ void Transport::Update(uint32 p_diff)
         }
 
         sScriptMgr->OnRelocate(this, m_curr->first, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
+
+        m_nextNodeTime = m_curr->first;
 
         if (m_curr == m_WayPoints.begin())
             sLog->outDebug(LOG_FILTER_TRANSPORTS, " ************ BEGIN ************** %s", m_name.c_str());

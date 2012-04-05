@@ -155,7 +155,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
   ${CMAKE_SOURCE_DIR}/dep/recastlite/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastlite/Detour/include
   ${CMAKE_SOURCE_DIR}/dep/recastlite/Recast
+  ${CMAKE_SOURCE_DIR}/dep/recastlite/Recast/include  
   ${CMAKE_SOURCE_DIR}/src/Server/Collision
   ${CMAKE_SOURCE_DIR}/src/Server/Collision/Management
   ${CMAKE_SOURCE_DIR}/src/Server/Collision/Pathfinding
