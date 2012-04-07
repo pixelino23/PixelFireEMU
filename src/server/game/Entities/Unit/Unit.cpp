@@ -156,8 +156,8 @@ _vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this), mo
 #ifdef _MSC_VER
 #pragma warning(default:4355)
 #endif
-    _objectType |= TYPEMASK_UNIT;
-    _objectTypeId = TYPEID_UNIT;
+    m_objectType |= TYPEMASK_UNIT;
+    m_objectTypeId = TYPEID_UNIT;
 
     m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
 
@@ -243,7 +243,7 @@ _vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this), mo
     m_cleanupDone = false;
     m_duringRemoveFromWorld = false;
 
-    _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+    m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
 
     _focusSpell = NULL;
     _targetLocked = false;
@@ -418,7 +418,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
 void Unit::DisableSpline()
 {
-    _movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD));
+    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD));
     movespline->_Interrupt();
 }
 
@@ -12442,9 +12442,9 @@ bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
 void Unit::SetVisible(bool x)
 {
     if (!x)
-        _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_GAMEMASTER);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_GAMEMASTER);
     else
-        _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
 
     UpdateObjectVisibility();
 }
@@ -17273,7 +17273,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
     *data << uint32(GetUnitMovementFlags()); // movement flags
-    *data << uint16(_movementInfo.flags2);    // 2.3.0
+    *data << uint16(m_movementInfo.flags2);    // 2.3.0
     *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
@@ -17297,33 +17297,33 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << uint32(GetTransTime());
         *data << uint8 (GetTransSeat());
 
-        if (_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)             // & 0x400, 4.0.3
-            *data << uint32(_movementInfo.t_time2);
+        if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)             // & 0x400, 4.0.3
+            *data << uint32(m_movementInfo.t_time2);
     }
 
     // 0x02200000
     if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
-        *data << (float)_movementInfo.pitch;
+        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        *data << (float)m_movementInfo.pitch;
 
     //4.0.6
-    if (_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING)    // & 0x800, 4.0.6
+    if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING)    // & 0x800, 4.0.6
     {
-        *data << (uint32)_movementInfo.fallTime;
-        *data << (float)_movementInfo.j_zspeed;
+        *data << (uint32)m_movementInfo.fallTime;
+        *data << (float)m_movementInfo.j_zspeed;
 
         // 0x00001000
         if (GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
         {
-            *data << (float)_movementInfo.j_sinAngle;
-            *data << (float)_movementInfo.j_cosAngle;
-            *data << (float)_movementInfo.j_xyspeed;
+            *data << (float)m_movementInfo.j_sinAngle;
+            *data << (float)m_movementInfo.j_cosAngle;
+            *data << (float)m_movementInfo.j_xyspeed;
         }
     }
 
     // 0x04000000
     if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION)
-        *data << (float)_movementInfo.splineElevation;
+        *data << (float)m_movementInfo.splineElevation;
 }
 
 void Unit::SetFlying(bool apply)

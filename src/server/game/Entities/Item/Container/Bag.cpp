@@ -27,10 +27,10 @@
 
 Bag::Bag(): Item()
 {
-    _objectType |= TYPEMASK_CONTAINER;
-    _objectTypeId = TYPEID_CONTAINER;
+    m_objectType |= TYPEMASK_CONTAINER;
+    m_objectTypeId = TYPEID_CONTAINER;
 
-    _valuesCount = CONTAINER_END;
+    m_valuesCount = CONTAINER_END;
 
     memset(m_bagslot, 0, sizeof(Item *) * MAX_BAG_SIZE);
 }

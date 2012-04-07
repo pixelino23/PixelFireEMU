@@ -662,10 +662,10 @@ Player::Player(WorldSession* session): Unit(true), _achievementMgr(this), _reput
     _speakTime = 0;
     _speakCount = 0;
 
-    _objectType |= TYPEMASK_PLAYER;
-    _objectTypeId = TYPEID_PLAYER;
+    m_objectType |= TYPEMASK_PLAYER;
+    m_objectTypeId = TYPEID_PLAYER;
 
-    _valuesCount = PLAYER_END;
+    m_valuesCount = PLAYER_END;
 
     _session = session;
 
@@ -921,8 +921,8 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 
-    if (_transport)
-        _transport->RemovePassenger(this);
+    if (m_transport)
+        m_transport->RemovePassenger(this);
 
     // clean up player-instance binds, may unload some instance saves
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
@@ -1495,11 +1495,11 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
 
     if (drunkPercent)
     {
-        _invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
-        _invisibilityDetect.SetValue(INVISIBILITY_DRUNK, drunkPercent);
+        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
+        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, drunkPercent);
     }
     else if (!HasAuraType(SPELL_AURA_MOD_FAKE_INEBRIATE) && !newDrunkenValue)
-        _invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
+        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
 
     _drunk = newDrunkenValue;
     SetUInt32Value(PLAYER_BYTES_3, (GetUInt32Value(PLAYER_BYTES_3) & 0xFFFF0001) | (_drunk & 0xFFFE));
@@ -2110,11 +2110,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         if (GetTransport())
         {
-            _transport->RemovePassenger(this);
-            _transport = NULL;
-            _movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            _movementInfo.t_time = 0;
-            _movementInfo.t_seat = -1;
+            m_transport->RemovePassenger(this);
+            m_transport = NULL;
+            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+            m_movementInfo.t_time = 0;
+            m_movementInfo.t_seat = -1;
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
@@ -2129,17 +2129,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     SetUnitMovementFlags(0);
     DisableSpline();
 
-    if (_transport)
+    if (m_transport)
     {
         if (options & TELE_TO_NOT_LEAVE_TRANSPORT)
             AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         else
         {
-            _transport->RemovePassenger(this);
-            _transport = NULL;
-            _movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            _movementInfo.t_time = 0;
-            _movementInfo.t_seat = -1;
+            m_transport->RemovePassenger(this);
+            m_transport = NULL;
+            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+            m_movementInfo.t_time = 0;
+            m_movementInfo.t_seat = -1;
         }
     }
 
@@ -2149,7 +2149,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
-    if ((GetMapId() == mapid && !_transport) || (GetTransport() && GetMapId() == 628))
+    if ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
     {
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -2274,8 +2274,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 // send transfer packets
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
-                if (_transport)
-                    data << _transport->GetEntry() << GetMapId();
+                if (m_transport)
+                    data << m_transport->GetEntry() << GetMapId();
 
                 GetSession()->SendPacket(&data);
             }
@@ -2290,12 +2290,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             float final_z = z;
             float final_o = orientation;
 
-            if (_transport)
+            if (m_transport)
             {
-                final_x += _movementInfo.t_pos.GetPositionX();
-                final_y += _movementInfo.t_pos.GetPositionY();
-                final_z += _movementInfo.t_pos.GetPositionZ();
-                final_o += _movementInfo.t_pos.GetOrientation();
+                final_x += m_movementInfo.t_pos.GetPositionX();
+                final_y += m_movementInfo.t_pos.GetPositionY();
+                final_z += m_movementInfo.t_pos.GetPositionZ();
+                final_o += m_movementInfo.t_pos.GetOrientation();
             }
 
             _teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
@@ -2307,8 +2307,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
                 data << uint32(mapid);
-                if (_transport)
-                    data << _movementInfo.t_pos.PositionXYZOStream();
+                if (m_transport)
+                    data << m_movementInfo.t_pos.PositionXYZOStream();
                 else
                     data << _teleport_dest.PositionXYZOStream();
 
@@ -2438,7 +2438,7 @@ void Player::RemoveFromWorld()
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         iter->second->RemoveFromWorld();
 
-    if (_uint32Values)
+    if (m_uint32Values)
     {
         if (WorldObject *viewpoint = GetViewpoint())
         {
@@ -2847,7 +2847,7 @@ void Player::SetGameMaster(bool on)
         CombatStopWithPets();
 
         SetPhaseMask(uint32(PHASEMASK_ANYWHERE), false);    // see and visible in all phases
-        _serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
+        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
     else
     {
@@ -2882,7 +2882,7 @@ void Player::SetGameMaster(bool on)
         UpdateArea(_areaUpdateId);
 
         getHostileRefManager().setOnlineOfflineState(true);
-        _serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
     }
 
     UpdateObjectVisibility();
@@ -2893,7 +2893,7 @@ void Player::SetGMVisible(bool on)
     if (on)
     {
         _ExtraFlags &= ~PLAYER_EXTRA_GM_INVISIBLE;         //remove flag
-        _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
     }
     else
     {
@@ -2902,7 +2902,7 @@ void Player::SetGMVisible(bool on)
         SetAcceptWhispers(false);
         SetGameMaster(true);
 
-        _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
 }
 
@@ -4558,7 +4558,7 @@ void Player::_SetCreateBits(UpdateMask *updateMask, Player *target) const
         Object::_SetCreateBits(updateMask, target);
     else
     {
-        for (uint16 index = 0; index < _valuesCount; index++)
+        for (uint16 index = 0; index < m_valuesCount; index++)
             if (GetUInt32Value(index) != 0 && updateVisualBits.GetBit(index))
                 updateMask->SetBit(index);
     }
@@ -17038,7 +17038,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
 void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
 {
     // arenateamid, played_week, played_season, personal_rating
-    memset((void*)&_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
+    memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
 
     uint16 personalRatingCache[] = {0, 0, 0};
 
@@ -17421,18 +17421,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transGUID)
     {
-        _movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
-        _movementInfo.t_pos.Relocate(fields[26].GetFloat(), fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat());
+        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
+        m_movementInfo.t_pos.Relocate(fields[26].GetFloat(), fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
-            GetPositionX()+_movementInfo.t_pos.m_positionX, GetPositionY()+_movementInfo.t_pos.m_positionY,
-            GetPositionZ()+_movementInfo.t_pos.m_positionZ, GetOrientation()+_movementInfo.t_pos._orientation) ||
+            GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
+            GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.m_orientation) ||
             // transport size limited
-            _movementInfo.t_pos.m_positionX > 250 || _movementInfo.t_pos.m_positionY > 250 || _movementInfo.t_pos.m_positionZ > 250)
+            m_movementInfo.t_pos.m_positionX > 250 || m_movementInfo.t_pos.m_positionY > 250 || m_movementInfo.t_pos.m_positionZ > 250)
         {
             sLog->outError("Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                guid, GetPositionX()+_movementInfo.t_pos.m_positionX, GetPositionY()+_movementInfo.t_pos.m_positionY,
-                GetPositionZ()+_movementInfo.t_pos.m_positionZ, GetOrientation()+_movementInfo.t_pos._orientation);
+                guid, GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
+                GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.m_orientation);
 
             RelocateToHomebind();
         }
@@ -17442,13 +17442,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             {
                 if ((*iter)->GetGUIDLow() == transGUID)
                 {
-                    _transport = *iter;
-                    _transport->AddPassenger(this);
-                    mapId = (_transport->GetMapId());
+                    m_transport = *iter;
+                    m_transport->AddPassenger(this);
+                    mapId = (m_transport->GetMapId());
                     break;
                 }
             }
-            if (!_transport)
+            if (!m_transport)
             {
                 sLog->outError("Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
                     guid, transGUID);
@@ -21356,7 +21356,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             count = (uint8)maxCount;
         }
         price = proto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
-        
+
         // reputation discount
         price = uint32(floor(price * GetReputationPriceDiscount(creature)));
 

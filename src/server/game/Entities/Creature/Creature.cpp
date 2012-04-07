@@ -141,7 +141,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapCreature(),
-lootForPickPocketed(false), lootForBody(false), _groupLootTimer(0), lootingGroupLowGUID(0),
+lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
 _PlayerDamageReq(0), _lootRecipient(0), _lootRecipientGroup(0), _corpseRemoveTime(0), _respawnTime(0),
 _respawnDelay(300), _corpseDelay(60), _respawnradius(0.0f), _reactState(REACT_AGGRESSIVE),
 _defaultMovementType(IDLE_MOTION_TYPE), _DBTableGuid(0), _equipmentId(0), _AlreadyCallAssistance(false),
@@ -149,7 +149,7 @@ _AlreadySearchedAssistance(false), _regenHealth(true), _AI_locked(false), _melee
 _creatureInfo(NULL), _creatureData(NULL), _formation(NULL), _path_id(0)
 {
     _regenTimer = CREATURE_REGEN_INTERVAL;
-    _valuesCount = UNIT_END;
+    m_valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         _spells[i] = 0;
@@ -173,7 +173,7 @@ Creature::~Creature()
     delete i_AI;
     i_AI = NULL;
 
-    //if (_uint32Values)
+    //if (m_uint32Values)
     //    sLog->outError("Deconstruct Creature Entry = %u", GetEntry());
 }
 
@@ -182,8 +182,8 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
-        if (_zoneScript)
-            _zoneScript->OnCreatureCreate(this);
+        if (m_zoneScript)
+            m_zoneScript->OnCreatureCreate(this);
         sObjectAccessor->AddObject(this);
         Unit::AddToWorld();
         SearchFormation();
@@ -197,8 +197,8 @@ void Creature::RemoveFromWorld()
 {
     if (IsInWorld())
     {
-        if (_zoneScript)
-            _zoneScript->OnCreatureRemove(this);
+        if (m_zoneScript)
+            m_zoneScript->OnCreatureRemove(this);
         if (_formation)
             sFormationMgr->RemoveCreatureFromGroup(_formation, this);
         Unit::RemoveFromWorld();
@@ -492,17 +492,17 @@ void Creature::Update(uint32 diff)
             if (_deathState != CORPSE)
                 break;
 
-            if (_groupLootTimer && lootingGroupLowGUID)
+            if (m_groupLootTimer && lootingGroupLowGUID)
             {
-                if (_groupLootTimer <= diff)
+                if (m_groupLootTimer <= diff)
                 {
                     Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
                     if (group)
                         group->EndRoll(&loot);
-                    _groupLootTimer = 0;
+                    m_groupLootTimer = 0;
                     lootingGroupLowGUID = 0;
                 }
-                else _groupLootTimer -= diff;
+                else m_groupLootTimer -= diff;
             }
             else if (_corpseRemoveTime <= time(NULL))
             {
@@ -800,8 +800,8 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     // TODO: Replace with spell, handle from DB
     if (isSpiritHealer() || isSpiritGuide())
     {
-        _serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-        _serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
     }
 
     if (Entry == VISUAL_WAYPOINT)
@@ -1205,9 +1205,9 @@ float Creature::GetSpellDamageMod(int32 Rank)
 bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data)
 {
     SetZoneScript();
-    if (_zoneScript && data)
+    if (m_zoneScript && data)
     {
-        Entry = _zoneScript->GetCreatureEntry(guidlow, data);
+        Entry = m_zoneScript->GetCreatureEntry(guidlow, data);
         if (!Entry)
             return false;
     }

@@ -299,7 +299,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             {
                 if ((*iter)->GetGUID() == movementInfo.t_guid)
                 {
-                    plMover->_transport = (*iter);
+                    plMover->m_transport = (*iter);
                     (*iter)->AddPassenger(plMover);
                     break;
                 }
@@ -315,8 +315,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     }
     else if (plMover && plMover->GetTransport())                // if we were on a transport, leave
     {
-        plMover->_transport->RemovePassenger(plMover);
-        plMover->_transport = NULL;
+        plMover->m_transport->RemovePassenger(plMover);
+        plMover->m_transport = NULL;
         movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         movementInfo.t_time = 0;
         movementInfo.t_seat = -1;
@@ -341,7 +341,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     WriteMovementInfo(&data, &movementInfo);
     mover->SendMessageToSet(&data, _player);
 
-    mover->_movementInfo = movementInfo;
+    mover->m_movementInfo = movementInfo;
 
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (mover->GetVehicle())
@@ -510,7 +510,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     mi.guid = old_mover_guid;
     ReadMovementInfo(recv_data, &mi);
 
-    _player->_movementInfo = mi;
+    _player->m_movementInfo = mi;
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recv_data*/)
@@ -535,7 +535,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
-    _player->_movementInfo = movementInfo;
+    _player->m_movementInfo = movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
     data.appendPackGUID(guid);

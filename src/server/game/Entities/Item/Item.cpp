@@ -235,12 +235,12 @@ bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto)
 
 Item::Item()
 {
-    _objectType |= TYPEMASK_ITEM;
-    _objectTypeId = TYPEID_ITEM;
+    m_objectType |= TYPEMASK_ITEM;
+    m_objectTypeId = TYPEID_ITEM;
 
     m_updateFlag = 0;
 
-    _valuesCount = ITEM_END;
+    m_valuesCount = ITEM_END;
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;
@@ -785,7 +785,7 @@ bool Item::HasEnchantRequiredSkill(const Player* player) const
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->requiredSkill && player->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
                     return false;
-    
+
     return true;
 }
 

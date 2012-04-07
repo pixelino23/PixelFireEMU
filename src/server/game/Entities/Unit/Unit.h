@@ -1657,8 +1657,8 @@ class Unit : public WorldObject
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveTransport(Unit* vehicleOwner);
         void SendMovementFlagUpdate();
-        bool IsLevitating() const { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_LEVITATING);}
-        bool IsWalking() const { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
+        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_LEVITATING);}
+        bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
         virtual bool SetLevitate(bool enable);
 
@@ -1975,7 +1975,7 @@ class Unit : public WorldObject
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
 
         // Visibility system
-        bool IsVisible() const { return (_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true; }
+        bool IsVisible() const { return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true; }
         void SetVisible(bool x);
 
         // common function for visibility checks for player/creatures with detection code
@@ -2105,17 +2105,17 @@ class Unit : public WorldObject
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
         void StopMoving();
 
-        void AddUnitMovementFlag(uint32 f) { _movementInfo.flags |= f; }
-        void RemoveUnitMovementFlag(uint32 f) { _movementInfo.flags &= ~f; }
-        uint32 HasUnitMovementFlag(uint32 f) const { return _movementInfo.flags & f; }
-        uint32 GetUnitMovementFlags() const { return _movementInfo.flags; }
-        void SetUnitMovementFlags(uint32 f) { _movementInfo.flags = f; }
+        void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
+        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
+        uint32 HasUnitMovementFlag(uint32 f) const { return m_movementInfo.flags & f; }
+        uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
+        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
-        void AddExtraUnitMovementFlag(uint16 f) { _movementInfo.flags2 |= f; }
-        void RemoveExtraUnitMovementFlag(uint16 f) { _movementInfo.flags2 &= ~f; }
-        uint16 HasExtraUnitMovementFlag(uint16 f) const { return _movementInfo.flags2 & f; }
-        uint16 GetExtraUnitMovementFlags() const { return _movementInfo.flags2; }
-        void SetExtraUnitMovementFlags(uint16 f) { _movementInfo.flags2 = f; }
+        void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
+        void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
+        uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
+        uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
+        void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
 
         void SetControlled(bool apply, UnitState state);
 
@@ -2178,12 +2178,12 @@ class Unit : public WorldObject
         bool IsOnVehicle(const Unit* vehicle) const { return m_vehicle && m_vehicle == vehicle->GetVehicleKit(); }
         Unit* GetVehicleBase()  const;
         Creature *GetVehicleCreatureBase() const;
-        float GetTransOffsetX() const { return _movementInfo.t_pos.GetPositionX(); }
-        float GetTransOffsetY() const { return _movementInfo.t_pos.GetPositionY(); }
-        float GetTransOffsetZ() const { return _movementInfo.t_pos.GetPositionZ(); }
-        float GetTransOffsetO() const { return _movementInfo.t_pos.GetOrientation(); }
-        uint32 GetTransTime()   const { return _movementInfo.t_time; }
-        int8 GetTransSeat()     const { return _movementInfo.t_seat; }
+        float GetTransOffsetX() const { return m_movementInfo.t_pos.GetPositionX(); }
+        float GetTransOffsetY() const { return m_movementInfo.t_pos.GetPositionY(); }
+        float GetTransOffsetZ() const { return m_movementInfo.t_pos.GetPositionZ(); }
+        float GetTransOffsetO() const { return m_movementInfo.t_pos.GetOrientation(); }
+        uint32 GetTransTime()   const { return m_movementInfo.t_time; }
+        int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
         uint64 GetTransGUID()   const;
 
         bool _ControlledByPlayer;
@@ -2199,10 +2199,10 @@ class Unit : public WorldObject
 
         void BuildMovementPacket(ByteBuffer *data) const;
 
-        bool isMoving() const   { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
-        bool isTurning() const  { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
-        bool canFly() const     { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
-        bool IsFlying() const   { return _movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
+        bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
+        bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
+        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
         void SetFlying(bool apply);
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
